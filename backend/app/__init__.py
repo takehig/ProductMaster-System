@@ -1,0 +1,3 @@
+"""
+ProductMaster System アプリケーション
+"""

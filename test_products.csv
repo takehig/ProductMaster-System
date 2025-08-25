@@ -1,0 +1,6 @@
+product_code,product_name,product_type,currency,description,issuer,minimum_investment,risk_level,maturity_date,interest_rate
+AMZN,Amazon.com Inc.,stock,USD,世界最大のEコマース・クラウドサービス企業,Amazon.com Inc.,1,4,,
+META,Meta Platforms Inc.,stock,USD,ソーシャルメディアとメタバース技術のリーダー,Meta Platforms Inc.,1,5,,
+NVDA,NVIDIA Corporation,stock,USD,AI・GPU技術の世界的リーダー,NVIDIA Corporation,1,5,,
+JGB-5Y-2025,第400回5年国債,bond,JPY,日本国発行の5年満期国債,日本国,10000,1,2030-03-20,0.003
+SONY-BOND-2028,ソニーグループ第25回社債,bond,JPY,ソニーグループが発行する社債,ソニーグループ,100000,2,2028-12-15,0.008

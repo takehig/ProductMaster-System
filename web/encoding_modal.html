@@ -1,0 +1,57 @@
+    <!-- エンコーディング選択モーダル -->
+    <div class="modal fade" id="encodingModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-download"></i> CSVダウンロード - 文字エンコーディング選択
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">ダウンロードするCSVファイルの文字エンコーディングを選択してください：</p>
+                    
+                    <div class="list-group">
+                        <button type="button" class="list-group-item list-group-item-action" onclick="downloadCSV('utf-8-sig'); bootstrap.Modal.getInstance(document.getElementById('encodingModal')).hide();">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <i class="fas fa-star text-warning"></i> UTF-8 BOM付き
+                                    <span class="badge bg-success ms-2">推奨</span>
+                                </h6>
+                            </div>
+                            <p class="mb-1">WindowsのExcelで正しく日本語が表示されます</p>
+                            <small class="text-muted">Excel 2016以降、LibreOffice、Google Sheetsで最適</small>
+                        </button>
+                        
+                        <button type="button" class="list-group-item list-group-item-action" onclick="downloadCSV('shift_jis'); bootstrap.Modal.getInstance(document.getElementById('encodingModal')).hide();">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <i class="fas fa-desktop"></i> Shift_JIS
+                                </h6>
+                            </div>
+                            <p class="mb-1">古いWindowsアプリケーションとの互換性が高い</p>
+                            <small class="text-muted">Excel 2013以前、古いWindowsソフトで最適</small>
+                        </button>
+                        
+                        <button type="button" class="list-group-item list-group-item-action" onclick="downloadCSV('utf-8'); bootstrap.Modal.getInstance(document.getElementById('encodingModal')).hide();">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <i class="fas fa-globe"></i> UTF-8
+                                </h6>
+                            </div>
+                            <p class="mb-1">国際標準の文字エンコーディング</p>
+                            <small class="text-muted">プログラム処理、Mac、Linuxで最適</small>
+                        </button>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>推奨:</strong> WindowsでExcelを使用する場合は「UTF-8 BOM付き」を選択してください。
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                </div>
+            </div>
+        </div>
+    </div>

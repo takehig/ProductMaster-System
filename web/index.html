@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProductMaster System - 商品情報管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .upload-area {
+            border: 2px dashed #dee2e6;
+            border-radius: 0.375rem;
+            padding: 2rem;
+            text-align: center;
+            transition: border-color 0.15s ease-in-out;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+        }
+        .upload-area.dragover {
+            border-color: #007bff;
+            background-color: rgba(0,123,255,.05);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-box"></i> ProductMaster System</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link active" href="#products">商品一覧</a>
+                <a class="nav-link" href="/api/docs" target="_blank">API仕様</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="display-4 mb-4"><i class="fas fa-chart-line"></i> 商品情報管理システム</h1>
+                <p class="lead mb-4">金融商品の包括的な情報管理とAPI提供プラットフォーム</p>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="searchInput" placeholder="商品名・コードで検索...">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="searchProducts()">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-success me-2" onclick="downloadCSV()">
+                                    <i class="fas fa-download"></i> CSV ダウンロード
+                                </button>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                                    <i class="fas fa-upload"></i> CSV アップロード
+                                </button>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <span class="badge bg-info fs-6">商品数: <span id="productCount">0</span>件</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products List -->
+        <div class="row" id="productList">
+            <div class="col-12 text-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">読み込み中...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div class="modal fade" id="uploadModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">CSV ファイルアップロード</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                        <p>CSVファイルをドラッグ&ドロップするか、クリックして選択してください</p>
+                        <input type="file" id="csvFile" accept=".csv" class="d-none">
+                        <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('csvFile').click()">
+                            ファイルを選択
+                        </button>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            対応形式: CSV (.csv)<br>
+                            必須列: product_code, product_name, product_type, currency
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-primary" id="uploadBtn" onclick="uploadCSV()" disabled>
+                        アップロード
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let allProducts = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Search on Enter
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchProducts();
+                }
+            });
+
+            // File upload
+            document.getElementById('csvFile').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    document.getElementById('uploadBtn').disabled = false;
+                }
+            });
+
+            // Drag and drop
+            const uploadArea = document.getElementById('uploadArea');
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    document.getElementById('csvFile').files = files;
+                    document.getElementById('uploadBtn').disabled = false;
+                }
+            });
+        }
+
+        async function loadData() {
+            try {
+                const response = await fetch('/products/api/products');
+                if (response.ok) {
+                    const data = await response.json();
+                    allProducts = data.products || [];
+                    displayProducts(allProducts);
+                } else {
+                    throw new Error('データの読み込みに失敗しました');
+                }
+            } catch (error) {
+                console.error('データ読み込みエラー:', error);
+                document.getElementById('productList').innerHTML = 
+                    '<div class="col-12"><div class="alert alert-danger">データの読み込みに失敗しました</div></div>';
+            }
+        }
+
+        function displayProducts(products) {
+            document.getElementById('productCount').textContent = products.length;
+
+            if (products.length === 0) {
+                document.getElementById('productList').innerHTML = 
+                    '<div class="col-12"><div class="alert alert-info">商品が見つかりませんでした</div></div>';
+                return;
+            }
+
+            const html = products.map(product => `
+                <div class="col-lg-6 col-xl-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="card-title">${product.product_name || product.name}</h6>
+                            <p class="card-text text-muted small">${product.description || ''}</p>
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">発行者:</small><br>
+                                    <strong>${product.issuer || '-'}</strong>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">通貨:</small><br>
+                                    <strong>${product.currency || 'JPY'}</strong>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <small class="text-muted">最小投資額:</small><br>
+                                    <strong>${(product.minimum_investment || 0).toLocaleString()}</strong>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">リスクレベル:</small><br>
+                                    <span class="badge bg-secondary">${product.risk_level || 1}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">商品コード: ${product.product_code || product.code}</small>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('productList').innerHTML = html;
+        }
+
+        function searchProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            if (!query) {
+                displayProducts(allProducts);
+                return;
+            }
+
+            const filtered = allProducts.filter(product => 
+                (product.product_name || product.name || '').toLowerCase().includes(query) ||
+                (product.product_code || product.code || '').toLowerCase().includes(query)
+            );
+            displayProducts(filtered);
+        }
+
+        async function downloadCSV() {
+            try {
+                const response = await fetch('/products/api/products/download');
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'products.csv';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    throw new Error('ダウンロードに失敗しました');
+                }
+            } catch (error) {
+                console.error('CSVダウンロードエラー:', error);
+                alert('CSVファイルのダウンロードに失敗しました');
+            }
+        }
+
+        async function uploadCSV() {
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('ファイルを選択してください');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/products/api/products/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.status === 'success') {
+                    alert(`${result.uploaded}件のデータをアップロードしました`);
+                    loadData();
+                    bootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();
+                } else {
+                    throw new Error(result.message || 'アップロードに失敗しました');
+                }
+            } catch (error) {
+                console.error('CSVアップロードエラー:', error);
+                alert('CSVファイルのアップロードに失敗しました');
+            }
+        }
+    </script>
+</body>
+</html>

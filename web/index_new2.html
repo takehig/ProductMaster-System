@@ -1,0 +1,638 @@
+    <!-- CSV アップロードモーダル -->
+    <div class="modal fade" id="uploadModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-upload"></i> CSV商品データアップロード
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">CSVファイル形式</label>
+                        <div class="alert alert-info">
+                            <small>
+                                <strong>必須列:</strong> product_code, product_name, product_type, currency<br>
+                                <strong>オプション列:</strong> description, issuer, minimum_investment, risk_level, maturity_date, interest_rate
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                        <p class="mb-2">CSVファイルをドラッグ&ドロップするか、クリックして選択</p>
+                        <input type="file" id="csvFile" accept=".csv" style="display: none;">
+                        <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('csvFile').click()">
+                            ファイル選択
+                        </button>
+                    </div>
+                    
+                    <div id="uploadProgress" class="mt-3" style="display: none;">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="uploadResult" class="mt-3"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-primary" id="uploadBtn" onclick="uploadCSV()" disabled>
+                        <i class="fas fa-upload"></i> アップロード
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 商品編集モーダル -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit"></i> 商品情報編集
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="editProductId">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">商品コード *</label>
+                                    <input type="text" class="form-control" id="editProductCode" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">商品名 *</label>
+                                    <input type="text" class="form-control" id="editProductName" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">商品タイプ *</label>
+                                    <select class="form-select" id="editProductType" required>
+                                        <option value="">選択してください</option>
+                                        <option value="bond">債券</option>
+                                        <option value="stock">株式</option>
+                                        <option value="fund">投資信託</option>
+                                        <option value="structured_product">仕組み商品</option>
+                                        <option value="insurance">保険</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">通貨 *</label>
+                                    <select class="form-select" id="editCurrency" required>
+                                        <option value="JPY">JPY</option>
+                                        <option value="USD">USD</option>
+                                        <option value="EUR">EUR</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">発行者</label>
+                                    <input type="text" class="form-control" id="editIssuer">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">リスクレベル</label>
+                                    <select class="form-select" id="editRiskLevel">
+                                        <option value="">選択してください</option>
+                                        <option value="1">1 (低リスク)</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5 (高リスク)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">最小投資額</label>
+                                    <input type="number" class="form-control" id="editMinInvestment">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">満期日</label>
+                                    <input type="date" class="form-control" id="editMaturityDate">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">利率 (%)</label>
+                                    <input type="number" step="0.0001" class="form-control" id="editInterestRate">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">説明</label>
+                            <textarea class="form-control" id="editDescription" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-primary" onclick="saveProduct()">
+                        <i class="fas fa-save"></i> 保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- フッター -->
+    <footer class="bg-dark text-light mt-5 py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>ProductMaster System</h5>
+                    <p class="text-muted">金融商品情報管理システム</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted">
+                        <i class="fas fa-code"></i> Powered by FastAPI & PostgreSQL
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // API設定
+        const API_BASE = '/api';
+        const API_TOKEN = 'aws-productmaster-token-2025';
+        
+        const headers = {
+            'Authorization': `Bearer ${API_TOKEN}`,
+            'Content-Type': 'application/json'
+        };
+
+        let allProducts = [];
+        let allCategories = [];
+        let currentView = 'card';
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            setupEventListeners();
+            
+            // Enterキーで検索
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchProducts();
+                }
+            });
+        });
+
+        function setupEventListeners() {
+            // CSV ファイル選択
+            document.getElementById('csvFile').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    document.getElementById('uploadBtn').disabled = false;
+                }
+            });
+
+            // ドラッグ&ドロップ
+            const uploadArea = document.getElementById('uploadArea');
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].name.endsWith('.csv')) {
+                    document.getElementById('csvFile').files = files;
+                    document.getElementById('uploadBtn').disabled = false;
+                }
+            });
+        }
+
+        async function loadData() {
+            try {
+                const [productsResponse, categoriesResponse] = await Promise.all([
+                    fetch(`${API_BASE}/products/`, { headers }),
+                    fetch(`${API_BASE}/categories/`, { headers })
+                ]);
+
+                if (productsResponse.ok && categoriesResponse.ok) {
+                    allProducts = await productsResponse.json();
+                    allCategories = await categoriesResponse.json();
+                    
+                    displayProducts(allProducts);
+                    updateStats();
+                } else {
+                    throw new Error('API呼び出しに失敗しました');
+                }
+            } catch (error) {
+                console.error('データ読み込みエラー:', error);
+                document.getElementById('productList').innerHTML = 
+                    '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> データの読み込みに失敗しました</div>';
+            }
+        }
+
+        function switchView(view) {
+            currentView = view;
+            const cardView = document.getElementById('productList');
+            const listView = document.getElementById('productTable');
+            const cardBtn = document.getElementById('cardViewBtn');
+            const listBtn = document.getElementById('listViewBtn');
+
+            if (view === 'card') {
+                cardView.style.display = 'block';
+                listView.style.display = 'none';
+                cardBtn.classList.add('active');
+                listBtn.classList.remove('active');
+            } else {
+                cardView.style.display = 'none';
+                listView.style.display = 'block';
+                cardBtn.classList.remove('active');
+                listBtn.classList.add('active');
+            }
+
+            displayProducts(allProducts);
+        }
+
+        function displayProducts(products) {
+            const productCount = document.getElementById('productCount');
+            productCount.textContent = `${products.length}件`;
+
+            if (currentView === 'card') {
+                displayCardView(products);
+            } else {
+                displayListView(products);
+            }
+        }
+
+        function displayCardView(products) {
+            const productList = document.getElementById('productList');
+
+            if (products.length === 0) {
+                productList.innerHTML = 
+                    '<div class="alert alert-info"><i class="fas fa-info-circle"></i> 条件に一致する商品が見つかりませんでした</div>';
+                return;
+            }
+
+            const html = products.map(product => `
+                <div class="col-lg-6 col-xl-4 mb-4">
+                    <div class="card product-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title">${product.product_name}</h6>
+                                <span class="badge badge-${getTypeClass(product.product_type)}">
+                                    ${getTypeLabel(product.product_type)}
+                                </span>
+                            </div>
+                            
+                            <p class="card-text text-muted small">${product.description || ''}</p>
+                            
+                            <div class="row text-sm">
+                                <div class="col-6">
+                                    <small class="text-muted">発行者:</small><br>
+                                    <strong>${product.issuer || '-'}</strong>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">通貨:</small><br>
+                                    <strong>${product.currency}</strong>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-2">
+                            
+                            <div class="row text-sm">
+                                <div class="col-6">
+                                    <small class="text-muted">リスクレベル:</small><br>
+                                    ${product.risk_level ? `<span class="badge bg-secondary">レベル${product.risk_level}</span>` : '-'}
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">最小投資額:</small><br>
+                                    <strong>¥${product.minimum_investment?.toLocaleString() || '-'}</strong>
+                                </div>
+                            </div>
+                            
+                            ${product.maturity_date ? `
+                                <div class="mt-2">
+                                    <small class="text-muted">満期日:</small>
+                                    <strong class="text-primary">${product.maturity_date}</strong>
+                                </div>
+                            ` : ''}
+                            
+                            ${product.interest_rate ? `
+                                <div class="mt-2">
+                                    <small class="text-muted">利率:</small>
+                                    <strong class="text-success">${(parseFloat(product.interest_rate) * 100).toFixed(2)}%</strong>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="viewProductDetail(${product.product_id})">
+                                <i class="fas fa-eye"></i> 詳細
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" onclick="editProduct(${product.product_id})">
+                                <i class="fas fa-edit"></i> 編集
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            productList.innerHTML = `<div class="row">${html}</div>`;
+        }
+
+        function displayListView(products) {
+            const tableBody = document.getElementById('productTableBody');
+
+            if (products.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">条件に一致する商品が見つかりませんでした</td></tr>';
+                return;
+            }
+
+            const html = products.map(product => `
+                <tr>
+                    <td>
+                        <strong>${product.product_name}</strong><br>
+                        <small class="text-muted">${product.product_code}</small>
+                    </td>
+                    <td>
+                        <span class="badge badge-${getTypeClass(product.product_type)}">
+                            ${getTypeLabel(product.product_type)}
+                        </span>
+                    </td>
+                    <td>${product.issuer || '-'}</td>
+                    <td>${product.currency}</td>
+                    <td>
+                        ${product.risk_level ? `<span class="badge bg-secondary">レベル${product.risk_level}</span>` : '-'}
+                    </td>
+                    <td>¥${product.minimum_investment?.toLocaleString() || '-'}</td>
+                    <td>${product.maturity_date || '-'}</td>
+                    <td>
+                        ${product.interest_rate ? `${(parseFloat(product.interest_rate) * 100).toFixed(2)}%` : '-'}
+                    </td>
+                    <td>
+                        <button class="btn btn-outline-primary btn-edit me-1" onclick="viewProductDetail(${product.product_id})" title="詳細表示">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-outline-warning btn-edit" onclick="editProduct(${product.product_id})" title="編集">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            tableBody.innerHTML = html;
+        }
+
+        function updateStats() {
+            document.getElementById('totalProducts').textContent = allProducts.length;
+            document.getElementById('totalCategories').textContent = allCategories.length;
+            document.getElementById('activeProducts').textContent = allProducts.filter(p => p.is_active).length;
+            
+            const currencies = [...new Set(allProducts.map(p => p.currency))];
+            document.getElementById('currencies').textContent = currencies.length;
+        }
+
+        async function searchProducts() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) {
+                displayProducts(allProducts);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/products/search?q=${encodeURIComponent(query)}`, { headers });
+                if (response.ok) {
+                    const data = await response.json();
+                    displayProducts(data.products || []);
+                }
+            } catch (error) {
+                console.error('検索エラー:', error);
+            }
+        }
+
+        function applyFilters() {
+            const typeFilter = document.getElementById('typeFilter').value;
+            const currencyFilter = document.getElementById('currencyFilter').value;
+            const riskFilter = document.getElementById('riskFilter').value;
+
+            let filtered = allProducts;
+
+            if (typeFilter) {
+                filtered = filtered.filter(p => p.product_type === typeFilter);
+            }
+            if (currencyFilter) {
+                filtered = filtered.filter(p => p.currency === currencyFilter);
+            }
+            if (riskFilter) {
+                filtered = filtered.filter(p => p.risk_level == riskFilter);
+            }
+
+            displayProducts(filtered);
+        }
+
+        function showUploadModal() {
+            const modal = new bootstrap.Modal(document.getElementById('uploadModal'));
+            modal.show();
+        }
+
+        async function uploadCSV() {
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('CSVファイルを選択してください');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const progressDiv = document.getElementById('uploadProgress');
+            const resultDiv = document.getElementById('uploadResult');
+            
+            progressDiv.style.display = 'block';
+            resultDiv.innerHTML = '';
+
+            try {
+                const response = await fetch(`${API_BASE}/products/upload-csv`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${API_TOKEN}`
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> 
+                            アップロード成功: ${result.created}件作成, ${result.updated}件更新
+                        </div>
+                    `;
+                    // データを再読み込み
+                    await loadData();
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> 
+                            エラー: ${result.detail || 'アップロードに失敗しました'}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('アップロードエラー:', error);
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        アップロードに失敗しました
+                    </div>
+                `;
+            } finally {
+                progressDiv.style.display = 'none';
+            }
+        }
+
+        async function editProduct(productId) {
+            try {
+                const response = await fetch(`${API_BASE}/products/${productId}`, { headers });
+                if (response.ok) {
+                    const product = await response.json();
+                    
+                    // フォームに値を設定
+                    document.getElementById('editProductId').value = product.product_id;
+                    document.getElementById('editProductCode').value = product.product_code;
+                    document.getElementById('editProductName').value = product.product_name;
+                    document.getElementById('editProductType').value = product.product_type;
+                    document.getElementById('editCurrency').value = product.currency;
+                    document.getElementById('editIssuer').value = product.issuer || '';
+                    document.getElementById('editRiskLevel').value = product.risk_level || '';
+                    document.getElementById('editMinInvestment').value = product.minimum_investment || '';
+                    document.getElementById('editMaturityDate').value = product.maturity_date || '';
+                    document.getElementById('editInterestRate').value = product.interest_rate ? (parseFloat(product.interest_rate) * 100) : '';
+                    document.getElementById('editDescription').value = product.description || '';
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('editModal'));
+                    modal.show();
+                }
+            } catch (error) {
+                console.error('商品詳細取得エラー:', error);
+            }
+        }
+
+        async function saveProduct() {
+            const productId = document.getElementById('editProductId').value;
+            const productData = {
+                product_code: document.getElementById('editProductCode').value,
+                product_name: document.getElementById('editProductName').value,
+                product_type: document.getElementById('editProductType').value,
+                currency: document.getElementById('editCurrency').value,
+                issuer: document.getElementById('editIssuer').value || null,
+                risk_level: document.getElementById('editRiskLevel').value ? parseInt(document.getElementById('editRiskLevel').value) : null,
+                minimum_investment: document.getElementById('editMinInvestment').value ? parseInt(document.getElementById('editMinInvestment').value) : null,
+                maturity_date: document.getElementById('editMaturityDate').value || null,
+                interest_rate: document.getElementById('editInterestRate').value ? parseFloat(document.getElementById('editInterestRate').value) / 100 : null,
+                description: document.getElementById('editDescription').value || null
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/products/${productId}`, {
+                    method: 'PUT',
+                    headers: headers,
+                    body: JSON.stringify(productData)
+                });
+
+                if (response.ok) {
+                    alert('商品情報を更新しました');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+                    modal.hide();
+                    await loadData();
+                } else {
+                    const error = await response.json();
+                    alert(`更新に失敗しました: ${error.detail}`);
+                }
+            } catch (error) {
+                console.error('商品更新エラー:', error);
+                alert('更新に失敗しました');
+            }
+        }
+
+        async function viewProductDetail(productId) {
+            try {
+                const response = await fetch(`${API_BASE}/products/${productId}`, { headers });
+                if (response.ok) {
+                    const product = await response.json();
+                    
+                    const details = `
+商品詳細情報
+
+商品名: ${product.product_name}
+商品コード: ${product.product_code}
+商品タイプ: ${getTypeLabel(product.product_type)}
+発行者: ${product.issuer || '-'}
+通貨: ${product.currency}
+リスクレベル: ${product.risk_level || '-'}
+最小投資額: ¥${product.minimum_investment?.toLocaleString() || '-'}
+${product.maturity_date ? `満期日: ${product.maturity_date}` : ''}
+${product.interest_rate ? `利率: ${(parseFloat(product.interest_rate) * 100).toFixed(2)}%` : ''}
+
+説明: ${product.description || '-'}
+                    `;
+                    
+                    alert(details);
+                }
+            } catch (error) {
+                console.error('商品詳細取得エラー:', error);
+            }
+        }
+
+        function getTypeClass(type) {
+            const classes = {
+                'bond': 'bond',
+                'stock': 'stock',
+                'fund': 'fund',
+                'structured_product': 'structured',
+                'insurance': 'insurance'
+            };
+            return classes[type] || 'secondary';
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                'bond': '債券',
+                'stock': '株式',
+                'fund': '投信',
+                'structured_product': '仕組み債',
+                'insurance': '保険'
+            };
+            return labels[type] || type;
+        }
+    </script>
+</body>
+</html>
