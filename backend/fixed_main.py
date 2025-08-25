@@ -151,3 +151,60 @@ async def upload_products(file: UploadFile = File(...)):
 @app.get("/health")
 def health_check():
     return {"status": "healthy", "service": "ProductMaster", "features": ["upload", "download", "list"]}
+
+@app.get("/api/version")
+def get_version():
+    """バージョン情報を取得"""
+    import subprocess
+    import os
+    
+    try:
+        # Gitコミット情報を取得
+        os.chdir("/home/ec2-user/ProductMaster")
+        
+        # 最新コミットハッシュ
+        commit_hash = subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"], 
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        
+        # 最新コミット日時
+        commit_date = subprocess.check_output(
+            ["git", "log", "-1", "--format=%ci"], 
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        
+        # 最新コミットメッセージ
+        commit_message = subprocess.check_output(
+            ["git", "log", "-1", "--format=%s"], 
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        
+        # ブランチ名
+        branch = subprocess.check_output(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"], 
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        
+        return {
+            "version": f"v1.0.0-{commit_hash}",
+            "commit_hash": commit_hash,
+            "commit_date": commit_date,
+            "commit_message": commit_message,
+            "branch": branch,
+            "build_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "service": "ProductMaster System"
+        }
+        
+    except Exception as e:
+        # Gitが利用できない場合のフォールバック
+        return {
+            "version": "v1.0.0-unknown",
+            "commit_hash": "unknown",
+            "commit_date": "unknown",
+            "commit_message": "Git information not available",
+            "branch": "unknown",
+            "build_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "service": "ProductMaster System",
+            "error": str(e)
+        }

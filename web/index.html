@@ -30,6 +30,9 @@
             <div class="navbar-nav ms-auto">
                 <a class="nav-link active" href="#products">商品一覧</a>
                 <a class="nav-link" href="/api/docs" target="_blank">API仕様</a>
+                <span class="navbar-text text-light me-3" id="versionInfo">
+                    <i class="fas fa-code-branch"></i> <span id="versionNumber">Loading...</span>
+                </span>
             </div>
         </div>
     </nav>
@@ -117,14 +120,70 @@
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="bg-light mt-5 py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-muted">ProductMaster System</h6>
+                    <p class="text-muted small mb-0">金融商品の包括的な情報管理とAPI提供プラットフォーム</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="text-muted small" id="versionDetails">
+                        <div><strong>Version:</strong> <span id="detailVersion">Loading...</span></div>
+                        <div><strong>Build:</strong> <span id="buildDate">Loading...</span></div>
+                        <div><strong>Commit:</strong> <span id="commitInfo">Loading...</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let allProducts = [];
 
         document.addEventListener('DOMContentLoaded', function() {
             loadData();
+            loadVersionInfo();
             setupEventListeners();
         });
+
+        // バージョン情報を読み込む
+        async function loadVersionInfo() {
+            try {
+                const response = await fetch('/products/api/version');
+                if (response.ok) {
+                    const versionData = await response.json();
+                    
+                    // ナビゲーションバーのバージョン表示
+                    document.getElementById('versionNumber').textContent = versionData.version;
+                    
+                    // フッターの詳細バージョン情報
+                    document.getElementById('detailVersion').textContent = versionData.version;
+                    document.getElementById('buildDate').textContent = versionData.build_date;
+                    document.getElementById('commitInfo').innerHTML = 
+                        `<a href="https://github.com/takehig/ProductMaster-System/commit/${versionData.commit_hash}" target="_blank" class="text-decoration-none">${versionData.commit_hash}</a> - ${versionData.commit_message}`;
+                    
+                    // ツールチップでより詳細な情報を表示
+                    document.getElementById('versionInfo').title = 
+                        `Branch: ${versionData.branch}\nCommit: ${versionData.commit_hash}\nDate: ${versionData.commit_date}\nMessage: ${versionData.commit_message}`;
+                        
+                } else {
+                    console.warn('バージョン情報の取得に失敗しました');
+                    document.getElementById('versionNumber').textContent = 'v1.0.0';
+                    document.getElementById('detailVersion').textContent = 'v1.0.0';
+                    document.getElementById('buildDate').textContent = new Date().toLocaleString();
+                    document.getElementById('commitInfo').textContent = 'Version info unavailable';
+                }
+            } catch (error) {
+                console.error('バージョン情報読み込みエラー:', error);
+                document.getElementById('versionNumber').textContent = 'v1.0.0';
+                document.getElementById('detailVersion').textContent = 'v1.0.0';
+                document.getElementById('buildDate').textContent = new Date().toLocaleString();
+                document.getElementById('commitInfo').textContent = 'Version info unavailable';
+            }
+        }
 
         function setupEventListeners() {
             // Search on Enter
