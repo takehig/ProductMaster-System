@@ -226,7 +226,7 @@
 
         async function loadData() {
             try {
-                const response = await fetch('/products/api/products');
+                const response = await fetch('/api/products');
                 if (response.ok) {
                     const data = await response.json();
                     allProducts = data.products || [];
@@ -303,7 +303,7 @@
 
         async function downloadCSV() {
             try {
-                const response = await fetch('/products/api/products/download');
+                const response = await fetch('/api/products/download');
                 if (response.ok) {
                     const blob = await response.blob();
                     const url = window.URL.createObjectURL(blob);
@@ -336,7 +336,7 @@
             formData.append('file', file);
 
             try {
-                const response = await fetch('/products/api/products/upload', {
+                const response = await fetch('/api/products/upload', {
                     method: 'POST',
                     body: formData
                 });
