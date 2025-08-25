@@ -152,7 +152,7 @@
         // バージョン情報を読み込む
         async function loadVersionInfo() {
             try {
-                const response = await fetch('/products/api/version');
+                const response = await fetch('/api/version');
                 if (response.ok) {
                     const versionData = await response.json();
                     
