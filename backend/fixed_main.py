@@ -37,7 +37,7 @@ def get_db_connection():
 @app.get("/", response_class=HTMLResponse)
 def read_root():
     try:
-        with open("../web/index.html", "r", encoding="utf-8") as f:
+        with open("/home/ec2-user/ProductMaster/web/index.html", "r", encoding="utf-8") as f:
             return f.read()
     except:
         return "<h1>ProductMaster System</h1><p>Loading...</p>"
