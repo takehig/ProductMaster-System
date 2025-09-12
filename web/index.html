@@ -21,6 +21,21 @@
             border-color: #007bff;
             background-color: rgba(0,123,255,.05);
         }
+        
+        /* 商品種別バッジ色分け */
+        .badge-type-stock { background-color: #0d6efd !important; }      /* 青 - 株式 */
+        .badge-type-bond { background-color: #198754 !important; }       /* 緑 - 債券 */
+        .badge-type-fund { background-color: #ffc107 !important; color: #000 !important; } /* 黄 - 投資信託 */
+        .badge-type-etf { background-color: #0dcaf0 !important; color: #000 !important; }  /* 水色 - 上場投資信託 */
+        .badge-type-reit { background-color: #6c757d !important; }       /* グレー - REIT */
+        .badge-type-commodity { background-color: #212529 !important; }  /* 黒 - コモディティ */
+        
+        /* リスクレベルグラデーション */
+        .badge-risk-1 { background-color: #d4edda !important; color: #155724 !important; border: 1px solid #c3e6cb; }
+        .badge-risk-2 { background-color: #b8daff !important; color: #004085 !important; border: 1px solid #9ec5fe; }
+        .badge-risk-3 { background-color: #fff3cd !important; color: #856404 !important; border: 1px solid #ffeaa7; }
+        .badge-risk-4 { background-color: #f8d7da !important; color: #721c24 !important; border: 1px solid #f1aeb5; }
+        .badge-risk-5 { background-color: #dc3545 !important; color: #fff !important; border: 1px solid #b02a37; }
     </style>
 </head>
 <body>
@@ -379,19 +394,51 @@
 
         function getRiskBadgeClass(level) {
             const classes = {
-                1: 'bg-success',
-                2: 'bg-info', 
-                3: 'bg-warning',
-                4: 'bg-danger',
-                5: 'bg-dark'
+                1: 'badge-risk-1',
+                2: 'badge-risk-2',
+                3: 'badge-risk-3',
+                4: 'badge-risk-4',
+                5: 'badge-risk-5'
             };
-            return classes[level] || 'bg-secondary';
+            return classes[level] || 'badge-risk-3';
         }
 
         function displayTableView(products) {
             const getRiskBadge = (level) => {
-                const colors = ['success', 'info', 'warning', 'danger', 'dark'];
-                return `<span class="badge bg-${colors[level-1] || 'secondary'}">${level}</span>`;
+                const riskColors = {
+                    1: 'badge-risk-1',
+                    2: 'badge-risk-2',
+                    3: 'badge-risk-3',
+                    4: 'badge-risk-4',
+                    5: 'badge-risk-5'
+                };
+                const colorClass = riskColors[level] || 'badge-risk-3';
+                return `<span class="badge ${colorClass}">リスク${level}</span>`;
+            };
+
+            const getProductTypeBadge = (type) => {
+                const typeColors = {
+                    'stock': 'badge-type-stock',
+                    'bond': 'badge-type-bond',
+                    'fund': 'badge-type-fund',
+                    'etf': 'badge-type-etf',
+                    'reit': 'badge-type-reit',
+                    'commodity': 'badge-type-commodity'
+                };
+                
+                const typeNames = {
+                    'stock': '株式',
+                    'bond': '債券',
+                    'fund': '投資信託',
+                    'etf': '上場投資信託',
+                    'reit': 'REIT',
+                    'commodity': 'コモディティ'
+                };
+                
+                const colorClass = typeColors[type] || 'bg-secondary';
+                const typeName = typeNames[type] || type || 'unknown';
+                
+                return `<span class="badge ${colorClass}">${typeName}</span>`;
             };
 
             const getStatusBadge = (isActive) => {
@@ -403,7 +450,7 @@
                     <td><strong>${product.product_id || (index + 1)}</strong></td>
                     <td><code>${product.product_code || product.code}</code></td>
                     <td><strong>${product.product_name || product.name}</strong></td>
-                    <td><span class="badge bg-primary">${product.product_type || 'unknown'}</span></td>
+                    <td>${getProductTypeBadge(product.product_type || 'unknown')}</td>
                     <td>${product.currency || 'JPY'}</td>
                     <td>${product.issuer || '-'}</td>
                     <td class="text-end">${(product.minimum_investment || 0).toLocaleString()}</td>
@@ -667,8 +714,9 @@
                                 <option value="stock">株式</option>
                                 <option value="bond">債券</option>
                                 <option value="fund">投資信託</option>
-                                <option value="etf">ETF</option>
+                                <option value="etf">上場投資信託</option>
                                 <option value="reit">REIT</option>
+                                <option value="commodity">コモディティ</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -737,8 +785,9 @@
                                 <option value="stock">株式</option>
                                 <option value="bond">債券</option>
                                 <option value="fund">投資信託</option>
-                                <option value="etf">ETF</option>
+                                <option value="etf">上場投資信託</option>
                                 <option value="reit">REIT</option>
+                                <option value="commodity">コモディティ</option>
                             </select>
                         </div>
                         <div class="mb-3">
