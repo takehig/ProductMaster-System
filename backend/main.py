@@ -77,6 +77,79 @@ def get_products():
     except Exception as e:
         return {"products": [], "total": 0, "status": "error", "message": str(e)}
 
+@app.put("/api/products/{product_id}")
+def update_product(product_id: int, product_data: dict):
+    """商品を更新"""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # 商品の存在確認
+        cur.execute("SELECT product_id FROM products WHERE product_id = %s", (product_id,))
+        if not cur.fetchone():
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        # 商品情報更新
+        update_query = """
+            UPDATE products SET 
+                product_code = %s,
+                product_name = %s,
+                product_type = %s,
+                currency = %s,
+                issuer = %s,
+                risk_level = %s,
+                description = %s,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE product_id = %s
+        """
+        
+        cur.execute(update_query, (
+            product_data.get("product_code"),
+            product_data.get("product_name"),
+            product_data.get("product_type"),
+            product_data.get("currency", "JPY"),
+            product_data.get("issuer"),
+            product_data.get("risk_level", 1),
+            product_data.get("description"),
+            product_id
+        ))
+        
+        conn.commit()
+        
+        # 更新後のデータを取得
+        cur.execute("""
+            SELECT product_id, product_code, product_name, product_type, 
+                   currency, issuer, minimum_investment, risk_level, description
+            FROM products WHERE product_id = %s
+        """, (product_id,))
+        result = cur.fetchone()
+        
+        cur.close()
+        conn.close()
+        
+        if result:
+            return {
+                "id": result[0],
+                "product_code": result[1],
+                "product_name": result[2],
+                "product_type": result[3],
+                "currency": result[4],
+                "issuer": result[5],
+                "minimum_investment": float(result[6]) if result[6] else 0,
+                "risk_level": result[7],
+                "description": result[8] or "",
+                "message": "Product updated successfully"
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Update failed")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
 @app.get("/api/products/download")
 def download_products():
     try:
@@ -150,7 +223,7 @@ async def upload_products(file: UploadFile = File(...)):
 
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "service": "ProductMaster", "features": ["upload", "download", "list"]}
+    return {"status": "healthy", "service": "ProductMaster", "features": ["upload", "download", "list", "update"]}
 
 @app.get("/api/version")
 def get_version():
