@@ -533,8 +533,12 @@
         // 商品編集
         async function editProduct(productId) {
             try {
-                const response = await fetch(`http://44.217.45.24:8001/api/products/${productId}`);
-                const product = await response.json();
+                // allProducts配列から商品を検索
+                const product = allProducts.find(p => (p.product_id || p.id) == productId);
+                if (!product) {
+                    alert('商品が見つかりません');
+                    return;
+                }
                 
                 // フォームに既存データを設定
                 document.getElementById('editProductId').value = product.product_id || product.id;
