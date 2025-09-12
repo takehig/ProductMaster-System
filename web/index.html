@@ -73,8 +73,11 @@
                                 <button class="btn btn-success me-2" onclick="downloadCSV()">
                                     <i class="fas fa-download"></i> CSV ダウンロード
                                 </button>
-                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                                <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#uploadModal">
                                     <i class="fas fa-upload"></i> CSV アップロード
+                                </button>
+                                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                                    <i class="fas fa-plus"></i> 新規追加
                                 </button>
                             </div>
                             <div class="col-md-3 text-end">
@@ -113,11 +116,12 @@
                                         <th>リスクレベル</th>
                                         <th>手数料率</th>
                                         <th>状態</th>
+                                        <th>操作</th>
                                     </tr>
                                 </thead>
                                 <tbody id="productTableBody">
                                     <tr>
-                                        <td colspan="9" class="text-center">
+                                        <td colspan="10" class="text-center">
                                             <div class="spinner-border" role="status">
                                                 <span class="visually-hidden">読み込み中...</span>
                                             </div>
@@ -318,7 +322,7 @@
                         '<div class="col-12"><div class="alert alert-info">商品が見つかりませんでした</div></div>';
                 } else {
                     document.getElementById('productTableBody').innerHTML = 
-                        '<tr><td colspan="9" class="text-center">商品が見つかりませんでした</td></tr>';
+                        '<tr><td colspan="10" class="text-center">商品が見つかりませんでした</td></tr>';
                 }
                 return;
             }
@@ -402,6 +406,14 @@
                     <td class="text-center">${getRiskBadge(product.risk_level || 1)}</td>
                     <td class="text-end">${(product.commission_rate || 0).toFixed(2)}%</td>
                     <td class="text-center">${getStatusBadge(product.is_active !== false)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editProduct(${product.id})" title="編集">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${product.id}, '${(product.product_name || product.name).replace(/'/g, '\\\'')}')" title="削除">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
                 </tr>
             `).join('');
 
@@ -475,6 +487,264 @@
                 alert('CSVファイルのアップロードに失敗しました');
             }
         }
+
+        // 新規商品追加
+        async function addProduct() {
+            const form = document.getElementById('addProductForm');
+            const formData = new FormData(form);
+            
+            const productData = {
+                product_code: formData.get('product_code'),
+                product_name: formData.get('product_name'),
+                product_type: formData.get('product_type'),
+                currency: formData.get('currency'),
+                issuer: formData.get('issuer'),
+                risk_level: parseInt(formData.get('risk_level')) || 1,
+                description: formData.get('description'),
+                is_active: true
+            };
+
+            try {
+                const response = await fetch('http://44.217.45.24:8001/api/products/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(productData)
+                });
+
+                if (response.ok) {
+                    alert('商品を追加しました');
+                    loadData();
+                    bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+                    form.reset();
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.detail || '追加に失敗しました');
+                }
+            } catch (error) {
+                console.error('商品追加エラー:', error);
+                alert('商品の追加に失敗しました: ' + error.message);
+            }
+        }
+
+        // 商品編集
+        async function editProduct(productId) {
+            try {
+                const response = await fetch(`http://44.217.45.24:8001/api/products/${productId}`);
+                const product = await response.json();
+                
+                // フォームに既存データを設定
+                document.getElementById('editProductId').value = product.id;
+                document.getElementById('editProductCode').value = product.product_code;
+                document.getElementById('editProductName').value = product.product_name;
+                document.getElementById('editProductType').value = product.product_type;
+                document.getElementById('editCurrency').value = product.currency || '';
+                document.getElementById('editIssuer').value = product.issuer || '';
+                document.getElementById('editRiskLevel').value = product.risk_level || 1;
+                document.getElementById('editDescription').value = product.description || '';
+                
+                // モーダル表示
+                new bootstrap.Modal(document.getElementById('editProductModal')).show();
+            } catch (error) {
+                console.error('商品取得エラー:', error);
+                alert('商品情報の取得に失敗しました');
+            }
+        }
+
+        // 商品更新
+        async function updateProduct() {
+            const productId = document.getElementById('editProductId').value;
+            const form = document.getElementById('editProductForm');
+            const formData = new FormData(form);
+            
+            const productData = {
+                product_code: formData.get('product_code'),
+                product_name: formData.get('product_name'),
+                product_type: formData.get('product_type'),
+                currency: formData.get('currency'),
+                issuer: formData.get('issuer'),
+                risk_level: parseInt(formData.get('risk_level')) || 1,
+                description: formData.get('description'),
+                is_active: true
+            };
+
+            try {
+                const response = await fetch(`http://44.217.45.24:8001/api/products/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(productData)
+                });
+
+                if (response.ok) {
+                    alert('商品を更新しました');
+                    loadData();
+                    bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.detail || '更新に失敗しました');
+                }
+            } catch (error) {
+                console.error('商品更新エラー:', error);
+                alert('商品の更新に失敗しました: ' + error.message);
+            }
+        }
+
+        // 商品削除
+        async function deleteProduct(productId, productName) {
+            if (!confirm(`商品「${productName}」を削除しますか？`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://44.217.45.24:8001/api/products/${productId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('商品を削除しました');
+                    loadData();
+                } else {
+                    throw new Error('削除に失敗しました');
+                }
+            } catch (error) {
+                console.error('商品削除エラー:', error);
+                alert('商品の削除に失敗しました');
+            }
+        }
     </script>
+
+    <!-- 新規商品追加モーダル -->
+    <div class="modal fade" id="addProductModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-plus"></i> 新規商品追加</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addProductForm">
+                        <div class="mb-3">
+                            <label class="form-label">商品コード *</label>
+                            <input type="text" class="form-control" name="product_code" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">商品名 *</label>
+                            <input type="text" class="form-control" name="product_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">商品タイプ *</label>
+                            <select class="form-select" name="product_type" required>
+                                <option value="">選択してください</option>
+                                <option value="stock">株式</option>
+                                <option value="bond">債券</option>
+                                <option value="fund">投資信託</option>
+                                <option value="etf">ETF</option>
+                                <option value="reit">REIT</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">通貨</label>
+                            <select class="form-select" name="currency">
+                                <option value="JPY">JPY</option>
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">発行者</label>
+                            <input type="text" class="form-control" name="issuer">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">リスクレベル</label>
+                            <select class="form-select" name="risk_level">
+                                <option value="1">1 (低リスク)</option>
+                                <option value="2">2</option>
+                                <option value="3">3 (中リスク)</option>
+                                <option value="4">4</option>
+                                <option value="5">5 (高リスク)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">説明</label>
+                            <textarea class="form-control" name="description" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-primary" onclick="addProduct()">追加</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 商品編集モーダル -->
+    <div class="modal fade" id="editProductModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit"></i> 商品編集</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProductForm">
+                        <input type="hidden" id="editProductId">
+                        <div class="mb-3">
+                            <label class="form-label">商品コード *</label>
+                            <input type="text" class="form-control" id="editProductCode" name="product_code" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">商品名 *</label>
+                            <input type="text" class="form-control" id="editProductName" name="product_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">商品タイプ *</label>
+                            <select class="form-select" id="editProductType" name="product_type" required>
+                                <option value="">選択してください</option>
+                                <option value="stock">株式</option>
+                                <option value="bond">債券</option>
+                                <option value="fund">投資信託</option>
+                                <option value="etf">ETF</option>
+                                <option value="reit">REIT</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">通貨</label>
+                            <select class="form-select" id="editCurrency" name="currency">
+                                <option value="JPY">JPY</option>
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">発行者</label>
+                            <input type="text" class="form-control" id="editIssuer" name="issuer">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">リスクレベル</label>
+                            <select class="form-select" id="editRiskLevel" name="risk_level">
+                                <option value="1">1 (低リスク)</option>
+                                <option value="2">2</option>
+                                <option value="3">3 (中リスク)</option>
+                                <option value="4">4</option>
+                                <option value="5">5 (高リスク)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">説明</label>
+                            <textarea class="form-control" id="editDescription" name="description" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-primary" onclick="updateProduct()">更新</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
