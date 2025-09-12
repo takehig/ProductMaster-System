@@ -407,10 +407,10 @@
                     <td class="text-end">${(product.commission_rate || 0).toFixed(2)}%</td>
                     <td class="text-center">${getStatusBadge(product.is_active !== false)}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editProduct(${product.id})" title="編集">
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="editProduct('${product.product_code || product.code}')" title="編集">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${product.id}, '${(product.product_name || product.name).replace(/'/g, '\\\'')}')" title="削除">
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('${product.product_code || product.code}', '${(product.product_name || product.name).replace(/'/g, '\\\'')}')" title="削除">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -529,17 +529,21 @@
         }
 
         // 商品編集
-        async function editProduct(productId) {
+        async function editProduct(productCode) {
             try {
-                const response = await fetch(`http://44.217.45.24:8001/api/products/${productId}`);
-                const product = await response.json();
+                // 商品コードで商品を検索
+                const product = allProducts.find(p => (p.product_code || p.code) === productCode);
+                if (!product) {
+                    alert('商品が見つかりません');
+                    return;
+                }
                 
                 // フォームに既存データを設定
-                document.getElementById('editProductId').value = product.id;
-                document.getElementById('editProductCode').value = product.product_code;
-                document.getElementById('editProductName').value = product.product_name;
-                document.getElementById('editProductType').value = product.product_type;
-                document.getElementById('editCurrency').value = product.currency || '';
+                document.getElementById('editProductId').value = product.id || productCode;
+                document.getElementById('editProductCode').value = product.product_code || product.code;
+                document.getElementById('editProductName').value = product.product_name || product.name;
+                document.getElementById('editProductType').value = product.product_type || '';
+                document.getElementById('editCurrency').value = product.currency || 'JPY';
                 document.getElementById('editIssuer').value = product.issuer || '';
                 document.getElementById('editRiskLevel').value = product.risk_level || 1;
                 document.getElementById('editDescription').value = product.description || '';
@@ -593,12 +597,20 @@
         }
 
         // 商品削除
-        async function deleteProduct(productId, productName) {
+        async function deleteProduct(productCode, productName) {
             if (!confirm(`商品「${productName}」を削除しますか？`)) {
                 return;
             }
 
             try {
+                // 商品コードで商品を検索してIDを取得
+                const product = allProducts.find(p => (p.product_code || p.code) === productCode);
+                if (!product) {
+                    alert('商品が見つかりません');
+                    return;
+                }
+
+                const productId = product.id || productCode;
                 const response = await fetch(`http://44.217.45.24:8001/api/products/${productId}`, {
                     method: 'DELETE'
                 });
