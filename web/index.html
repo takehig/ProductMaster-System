@@ -281,6 +281,8 @@
                 if (response.ok) {
                     const data = await response.json();
                     allProducts = data.products || [];
+                    console.log('[DEBUG] Loaded allProducts:', allProducts);
+                    console.log('[DEBUG] allProducts length:', allProducts.length);
                     displayProducts(allProducts);
                 } else {
                     throw new Error('データの読み込みに失敗しました');
@@ -532,9 +534,11 @@
 
         // 商品編集
         async function editProduct(productId) {
+            console.log('[DEBUG] editProduct called with productId:', productId);
             try {
                 // allProducts配列から商品を検索
                 const product = allProducts.find(p => (p.product_id || p.id) == productId);
+                console.log('[DEBUG] Found product in allProducts:', product);
                 if (!product) {
                     alert('商品が見つかりません');
                     return;
@@ -543,6 +547,7 @@
                 // フォームに既存データを設定
                 document.getElementById('editProductId').value = product.product_id || product.id;
                 document.getElementById('editProductIdDisplay').value = product.product_id || product.id;
+                console.log('[DEBUG] Set editProductId to:', product.product_id || product.id);
                 document.getElementById('editProductCode').value = product.product_code || product.code;
                 document.getElementById('editProductName').value = product.product_name || product.name;
                 document.getElementById('editProductType').value = product.product_type || '';
@@ -562,9 +567,12 @@
         // 商品更新
         async function updateProduct() {
             const productId = document.getElementById('editProductId').value;
+            console.log('[DEBUG] updateProduct called with productId from form:', productId);
+            console.log('[DEBUG] allProducts array:', allProducts);
             
             // allProducts配列から商品を検索して実際のIDを確認
             const product = allProducts.find(p => (p.product_id || p.id) == productId);
+            console.log('[DEBUG] Found product for update:', product);
             if (!product) {
                 alert('更新対象の商品が見つかりません');
                 return;
@@ -586,6 +594,7 @@
 
             try {
                 const actualProductId = product.product_id || product.id;
+                console.log('[DEBUG] Using actualProductId for PUT:', actualProductId);
                 const response = await fetch(`http://44.217.45.24:8001/api/products/${actualProductId}`, {
                     method: 'PUT',
                     headers: {
