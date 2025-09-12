@@ -562,6 +562,14 @@
         // 商品更新
         async function updateProduct() {
             const productId = document.getElementById('editProductId').value;
+            
+            // allProducts配列から商品を検索して実際のIDを確認
+            const product = allProducts.find(p => (p.product_id || p.id) == productId);
+            if (!product) {
+                alert('更新対象の商品が見つかりません');
+                return;
+            }
+            
             const form = document.getElementById('editProductForm');
             const formData = new FormData(form);
             
@@ -577,7 +585,8 @@
             };
 
             try {
-                const response = await fetch(`http://44.217.45.24:8001/api/products/${productId}`, {
+                const actualProductId = product.product_id || product.id;
+                const response = await fetch(`http://44.217.45.24:8001/api/products/${actualProductId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
