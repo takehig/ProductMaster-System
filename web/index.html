@@ -593,9 +593,10 @@
             };
 
             try {
-                // product_codeで更新（APIがサポートしている場合）
-                console.log('[DEBUG] Using productCode for PUT:', productCode);
-                const response = await fetch(`http://44.217.45.24:8001/api/products/code/${productCode}`, {
+                // 実際のidを使用（product.idまたはproduct.product_id）
+                const actualId = product.id || product.product_id;
+                console.log('[DEBUG] Using actualId for PUT:', actualId);
+                const response = await fetch(`http://44.217.45.24:8001/api/products/${actualId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
