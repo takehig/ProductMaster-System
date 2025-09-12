@@ -545,9 +545,9 @@
                 }
                 
                 // フォームに既存データを設定
-                document.getElementById('editProductId').value = productCode; // product_codeを使用
-                document.getElementById('editProductIdDisplay').value = productCode;
-                console.log('[DEBUG] Set editProductId to:', productCode);
+                document.getElementById('editProductId').value = product.id; // 実際のIDを設定
+                document.getElementById('editProductIdDisplay').value = product.id; // 実際のIDを表示
+                console.log('[DEBUG] Set editProductId to:', product.id);
                 document.getElementById('editProductCode').value = product.product_code || product.code;
                 document.getElementById('editProductName').value = product.product_name || product.name;
                 document.getElementById('editProductType').value = product.product_type || '';
@@ -566,12 +566,12 @@
 
         // 商品更新
         async function updateProduct() {
-            const productCode = document.getElementById('editProductId').value;
-            console.log('[DEBUG] updateProduct called with productCode from form:', productCode);
+            const productId = document.getElementById('editProductId').value;
+            console.log('[DEBUG] updateProduct called with productId from form:', productId);
             console.log('[DEBUG] allProducts array:', allProducts);
             
             // allProducts配列から商品を検索
-            const product = allProducts.find(p => (p.product_code || p.code) === productCode);
+            const product = allProducts.find(p => (p.id) == productId);
             console.log('[DEBUG] Found product for update:', product);
             if (!product) {
                 alert('更新対象の商品が見つかりません');
