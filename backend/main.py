@@ -1,107 +1,210 @@
-"""
-ProductMaster System - メインアプリケーション
-商品情報管理システムのFastAPIアプリケーション
-"""
-
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from contextlib import asynccontextmanager
+from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 import os
+import io
+import csv
+import pandas as pd
+from datetime import datetime
+import psycopg2
 from dotenv import load_dotenv
 
-from app.database.connection import engine, get_db
-from app.api import products, categories, prices, performance
-from app.models.base import Base
-
-# 環境変数の読み込み
 load_dotenv()
 
-# セキュリティ
-security = HTTPBearer()
+app = FastAPI(title="ProductMaster System", version="1.0.0")
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # アプリケーション起動時
-    print("ProductMaster System starting up...")
-    yield
-    # アプリケーション終了時
-    print("ProductMaster System shutting down...")
-
-# FastAPIアプリケーションの作成
-app = FastAPI(
-    title="ProductMaster System",
-    description="商品情報管理システム API",
-    version="1.0.0",
-    lifespan=lifespan
-)
-
-# CORS設定
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 本番環境では適切に制限する
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# 認証チェック（簡易版）
-async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    token = credentials.credentials
-    # 本番環境では適切なJWT検証を実装
-    if token != os.getenv("API_TOKEN", "demo-token-12345"):
-        raise HTTPException(status_code=401, detail="Invalid authentication token")
-    return token
+# 静的ファイル配信
+app.mount("/static", StaticFiles(directory="../web"), name="static")
 
-# ルーターの登録
-app.include_router(
-    products.router,
-    prefix="/api/products",
-    tags=["products"],
-    dependencies=[Depends(verify_token)]
-)
-
-app.include_router(
-    categories.router,
-    prefix="/api/categories",
-    tags=["categories"],
-    dependencies=[Depends(verify_token)]
-)
-
-app.include_router(
-    prices.router,
-    prefix="/api/prices",
-    tags=["prices"],
-    dependencies=[Depends(verify_token)]
-)
-
-app.include_router(
-    performance.router,
-    prefix="/api/performance",
-    tags=["performance"],
-    dependencies=[Depends(verify_token)]
-)
-
-# ヘルスチェックエンドポイント
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy", "service": "ProductMaster System"}
-
-# ルートエンドポイント
-@app.get("/")
-async def root():
-    return {
-        "message": "ProductMaster System API",
-        "version": "1.0.0",
-        "docs": "/docs",
-        "health": "/health"
-    }
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8001,
-        reload=True
+def get_db_connection():
+    return psycopg2.connect(
+        host=os.getenv("DB_HOST", "localhost"),
+        port=os.getenv("DB_PORT", "5432"),
+        database=os.getenv("DB_NAME", "productmaster"),
+        user=os.getenv("DB_USER", "productmaster_user"),
+        password=os.getenv("DB_PASSWORD", "productmaster123")
     )
+
+@app.get("/", response_class=HTMLResponse)
+def read_root():
+    try:
+        with open("/home/ec2-user/ProductMaster/web/index.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except:
+        return "<h1>ProductMaster System</h1><p>Loading...</p>"
+
+@app.get("/api/products")
+def get_products():
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT product_id, product_code, product_name, product_type, 
+                   currency, issuer, minimum_investment, risk_level, description
+            FROM products 
+            WHERE is_active = true
+            ORDER BY product_id
+        """)
+        rows = cur.fetchall()
+        
+        products = []
+        for row in rows:
+            products.append({
+                "id": row[0],
+                "product_code": row[1],
+                "product_name": row[2],
+                "product_type": row[3],
+                "currency": row[4],
+                "issuer": row[5],
+                "minimum_investment": float(row[6]) if row[6] else 0,
+                "risk_level": row[7],
+                "description": row[8] or ""
+            })
+        
+        cur.close()
+        conn.close()
+        
+        return {"products": products, "total": len(products), "status": "success"}
+    except Exception as e:
+        return {"products": [], "total": 0, "status": "error", "message": str(e)}
+
+@app.get("/api/products/download")
+def download_products():
+    try:
+        conn = get_db_connection()
+        df = pd.read_sql_query("""
+            SELECT product_code, product_name, product_type, currency, issuer, 
+                   minimum_investment, risk_level, description
+            FROM products 
+            WHERE is_active = true
+            ORDER BY product_id
+        """, conn)
+        conn.close()
+        
+        output = io.StringIO()
+        df.to_csv(output, index=False, encoding='utf-8-sig')
+        output.seek(0)
+        
+        return StreamingResponse(
+            io.BytesIO(output.getvalue().encode('utf-8-sig')),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=products.csv"}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/products/upload")
+async def upload_products(file: UploadFile = File(...)):
+    try:
+        contents = await file.read()
+        df = pd.read_csv(io.StringIO(contents.decode('utf-8')))
+        
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        uploaded_count = 0
+        for _, row in df.iterrows():
+            cur.execute("""
+                INSERT INTO products (product_code, product_name, product_type, currency, issuer, 
+                                    minimum_investment, risk_level, description, is_active, created_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, true, %s)
+                ON CONFLICT (product_code) DO UPDATE SET
+                    product_name = EXCLUDED.product_name,
+                    product_type = EXCLUDED.product_type,
+                    currency = EXCLUDED.currency,
+                    issuer = EXCLUDED.issuer,
+                    minimum_investment = EXCLUDED.minimum_investment,
+                    risk_level = EXCLUDED.risk_level,
+                    description = EXCLUDED.description,
+                    updated_at = %s
+            """, (
+                row.get('product_code', ''),
+                row.get('product_name', ''),
+                row.get('product_type', ''),
+                row.get('currency', 'JPY'),
+                row.get('issuer', ''),
+                row.get('minimum_investment', 0),
+                row.get('risk_level', 1),
+                row.get('description', ''),
+                datetime.now(),
+                datetime.now()
+            ))
+            uploaded_count += 1
+        
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return {"status": "success", "uploaded": uploaded_count, "message": f"{uploaded_count}件のデータをアップロードしました"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "service": "ProductMaster", "features": ["upload", "download", "list"]}
+
+@app.get("/api/version")
+def get_version():
+    """バージョン情報を取得"""
+    import subprocess
+    import os
+    
+    try:
+        # Gitコミット情報を取得
+        os.chdir("/home/ec2-user/ProductMaster")
+        
+        # 最新コミットハッシュ
+        commit_hash = subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"], 
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        
+        # 最新コミット日時
+        commit_date = subprocess.check_output(
+            ["git", "log", "-1", "--format=%ci"], 
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        
+        # 最新コミットメッセージ
+        commit_message = subprocess.check_output(
+            ["git", "log", "-1", "--format=%s"], 
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        
+        # ブランチ名
+        branch = subprocess.check_output(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"], 
+            stderr=subprocess.DEVNULL
+        ).decode().strip()
+        
+        return {
+            "version": f"v1.0.0-{commit_hash}",
+            "commit_hash": commit_hash,
+            "commit_date": commit_date,
+            "commit_message": commit_message,
+            "branch": branch,
+            "build_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "service": "ProductMaster System"
+        }
+        
+    except Exception as e:
+        # Gitが利用できない場合のフォールバック
+        return {
+            "version": "v1.0.0-unknown",
+            "commit_hash": "unknown",
+            "commit_date": "unknown",
+            "commit_message": "Git information not available",
+            "branch": "unknown",
+            "build_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "service": "ProductMaster System",
+            "error": str(e)
+        }
