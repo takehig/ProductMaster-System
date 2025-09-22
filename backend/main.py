@@ -77,6 +77,56 @@ def get_products():
     except Exception as e:
         return {"products": [], "total": 0, "status": "error", "message": str(e)}
 
+@app.post("/api/products/")
+async def create_product(product_data: dict):
+    """新規商品を追加"""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # 必須フィールドチェック
+        if not product_data.get('product_code'):
+            raise HTTPException(status_code=400, detail="商品コードは必須です")
+        if not product_data.get('product_name'):
+            raise HTTPException(status_code=400, detail="商品名は必須です")
+        
+        # 重複チェック
+        cur.execute("SELECT product_id FROM products WHERE product_code = %s", (product_data['product_code'],))
+        if cur.fetchone():
+            raise HTTPException(status_code=400, detail="この商品コードは既に存在します")
+        
+        # 新規商品追加
+        cur.execute("""
+            INSERT INTO products (product_code, product_name, product_type, currency, issuer, 
+                                minimum_investment, risk_level, description, is_active, created_at, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING product_id
+        """, (
+            product_data['product_code'],
+            product_data['product_name'],
+            product_data.get('product_type', ''),
+            product_data.get('currency', 'JPY'),
+            product_data.get('issuer', ''),
+            product_data.get('minimum_investment', 0),
+            product_data.get('risk_level', 1),
+            product_data.get('description', ''),
+            product_data.get('is_active', True),
+            datetime.now(),
+            datetime.now()
+        ))
+        
+        product_id = cur.fetchone()[0]
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return {"status": "success", "product_id": product_id, "message": "商品を追加しました"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        return {"status": "error", "message": f"商品追加エラー: {str(e)}"}
+
 @app.put("/api/products/{product_id}")
 def update_product(product_id: int, product_data: dict):
     """商品を更新"""
