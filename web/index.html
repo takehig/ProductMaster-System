@@ -229,7 +229,9 @@
             document.getElementById(sectionName + '-section').style.display = 'block';
             
             // 対応するナビリンクにactiveクラスを追加
-            event.target.classList.add('active');
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
             
             // セクション別の初期化処理
             if (sectionName === 'products') {
@@ -369,7 +371,15 @@
 
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
-            showSection('products');
+            // 商品セクションのみ表示
+            document.getElementById('products-section').style.display = 'block';
+            document.getElementById('categories-section').style.display = 'none';
+            
+            // 商品一覧のナビリンクをアクティブに
+            document.querySelector('a[onclick="showSection(\'products\')"]').classList.add('active');
+            
+            // 商品データ読み込み
+            loadProducts();
         });
     </script>
 </body>
