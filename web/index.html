@@ -76,17 +76,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#" onclick="showSection('categories')">
-                                <i class="fas fa-tags me-2"></i>カテゴリ一覧
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" onclick="showSection('category-add')">
-                                <i class="fas fa-plus me-2"></i>カテゴリ登録
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/api/docs" target="_blank">
-                                <i class="fas fa-book me-2"></i>API仕様
+                                <i class="fas fa-tags me-2"></i>カテゴリ管理
                             </a>
                         </li>
                     </ul>
@@ -146,36 +136,17 @@
                     </div>
                 </div>
 
-                <!-- カテゴリ一覧セクション -->
+                <!-- カテゴリ管理セクション -->
                 <div id="categories-section" class="content-section" style="display: none;">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                        <h1 class="h2"><i class="fas fa-tags me-2"></i>カテゴリ一覧</h1>
-                        <button class="btn btn-primary" onclick="showSection('category-add')">
-                            <i class="fas fa-plus me-1"></i>新規カテゴリ追加
-                        </button>
+                        <h1 class="h2"><i class="fas fa-tags me-2"></i>カテゴリ管理</h1>
                     </div>
                     
-                    <div class="card">
-                        <div class="card-body">
-                            <div id="categoriesContainer">
-                                <div class="text-center">
-                                    <div class="spinner-border" role="status">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                    <p class="mt-2">カテゴリデータを読み込み中...</p>
-                                </div>
-                            </div>
+                    <!-- カテゴリ登録フォーム -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-plus me-2"></i>カテゴリ登録</h5>
                         </div>
-                    </div>
-                </div>
-
-                <!-- カテゴリ登録セクション -->
-                <div id="category-add-section" class="content-section" style="display: none;">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                        <h1 class="h2"><i class="fas fa-plus me-2"></i>カテゴリ登録</h1>
-                    </div>
-                    
-                    <div class="card">
                         <div class="card-body">
                             <form id="categoryForm">
                                 <div class="row">
@@ -194,7 +165,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="categoryDescription" class="form-label">説明</label>
-                                    <textarea class="form-control" id="categoryDescription" rows="3"></textarea>
+                                    <textarea class="form-control" id="categoryDescription" rows="2"></textarea>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
@@ -207,22 +178,32 @@
                                         <div class="mb-3">
                                             <div class="form-check mt-4">
                                                 <input class="form-check-input" type="checkbox" id="isActive" checked>
-                                                <label class="form-check-label" for="isActive">
-                                                    有効
-                                                </label>
+                                                <label class="form-check-label" for="isActive">有効</label>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                    <button type="button" class="btn btn-secondary me-md-2" onclick="showSection('categories')">
-                                        <i class="fas fa-arrow-left me-1"></i>戻る
-                                    </button>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save me-1"></i>登録
-                                    </button>
-                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>登録
+                                </button>
                             </form>
+                        </div>
+                    </div>
+                    
+                    <!-- カテゴリ一覧 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-list me-2"></i>カテゴリ一覧</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="categoriesContainer">
+                                <div class="text-center">
+                                    <div class="spinner-border" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <p class="mt-2">カテゴリデータを読み込み中...</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -321,7 +302,7 @@
                 if (response.ok) {
                     alert('カテゴリが正常に登録されました。');
                     document.getElementById('categoryForm').reset();
-                    showSection('categories');
+                    loadCategories(); // カテゴリ一覧を再読み込み
                 } else {
                     const error = await response.json();
                     alert('登録に失敗しました: ' + error.detail);
@@ -332,9 +313,43 @@
             }
         });
 
-        // 既存の商品関連関数（省略）
-        function loadProducts() {
-            // 既存の商品読み込み処理
+        // 商品読み込み
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                const products = await response.json();
+                
+                document.getElementById('productCount').textContent = products.length;
+                
+                const container = document.getElementById('productsContainer');
+                if (products.length === 0) {
+                    container.innerHTML = '<p class="text-muted">商品が登録されていません。</p>';
+                    return;
+                }
+                
+                // カード表示
+                let html = '<div class="row">';
+                products.forEach(product => {
+                    html += `<div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">${product.product_name}</h6>
+                                <p class="card-text">
+                                    <small class="text-muted">コード: ${product.product_code}</small><br>
+                                    <span class="badge bg-primary">${product.product_type}</span>
+                                    ${product.risk_level ? '<span class="badge badge-risk-' + product.risk_level + '">リスク' + product.risk_level + '</span>' : ''}
+                                </p>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+                
+            } catch (error) {
+                console.error('商品読み込みエラー:', error);
+                document.getElementById('productsContainer').innerHTML = '<p class="text-danger">商品の読み込みに失敗しました。</p>';
+            }
         }
         
         function searchProducts() {
