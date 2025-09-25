@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 import os
 import io
 import csv
@@ -25,6 +26,14 @@ app.add_middleware(
 # 静的ファイル配信
 app.mount("/static", StaticFiles(directory="../web"), name="static")
 
+# カテゴリ登録用モデル
+class CategoryCreate(BaseModel):
+    category_name: str
+    category_code: str
+    description: str = None
+    display_order: int = 0
+    is_active: bool = True
+
 def get_db_connection():
     return psycopg2.connect(
         host=os.getenv("DB_HOST", "localhost"),
@@ -41,6 +50,71 @@ def read_root():
             return f.read()
     except:
         return "<h1>ProductMaster System</h1><p>Loading...</p>"
+
+@app.get("/api/categories")
+def get_categories():
+    """カテゴリ一覧取得"""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT category_id, category_name, category_code, description, 
+                   display_order, is_active, created_at, updated_at
+            FROM product_categories 
+            ORDER BY display_order, category_name
+        """)
+        
+        categories = []
+        for row in cur.fetchall():
+            categories.append({
+                "category_id": row[0],
+                "category_name": row[1],
+                "category_code": row[2],
+                "description": row[3],
+                "display_order": row[4],
+                "is_active": row[5],
+                "created_at": row[6].isoformat() if row[6] else None,
+                "updated_at": row[7].isoformat() if row[7] else None
+            })
+        
+        cur.close()
+        conn.close()
+        return categories
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"カテゴリ取得エラー: {str(e)}")
+
+@app.post("/api/categories")
+def create_category(category: CategoryCreate):
+    """カテゴリ新規登録"""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # カテゴリコードの重複チェック
+        cur.execute("SELECT category_id FROM product_categories WHERE category_code = %s", (category.category_code,))
+        if cur.fetchone():
+            raise HTTPException(status_code=400, detail="カテゴリコードが既に存在します")
+        
+        # カテゴリ登録
+        cur.execute("""
+            INSERT INTO product_categories (category_name, category_code, description, display_order, is_active)
+            VALUES (%s, %s, %s, %s, %s)
+            RETURNING category_id
+        """, (category.category_name, category.category_code, category.description, 
+              category.display_order, category.is_active))
+        
+        category_id = cur.fetchone()[0]
+        conn.commit()
+        cur.close()
+        conn.close()
+        
+        return {"message": "カテゴリが正常に登録されました", "category_id": category_id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"カテゴリ登録エラー: {str(e)}")
 
 @app.get("/api/products")
 def get_products():
