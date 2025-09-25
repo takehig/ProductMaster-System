@@ -317,7 +317,10 @@
         async function loadProducts() {
             try {
                 const response = await fetch('/api/products');
-                const products = await response.json();
+                const data = await response.json();
+                
+                // APIレスポンス構造確認
+                const products = data.products || data; // products配列を取得
                 
                 document.getElementById('productCount').textContent = products.length;
                 
