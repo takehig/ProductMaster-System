@@ -28,42 +28,19 @@
         .main-content {
             padding: 2rem;
         }
-        .upload-area {
-            border: 2px dashed #dee2e6;
-            border-radius: 0.375rem;
-            padding: 2rem;
-            text-align: center;
-            transition: border-color 0.15s ease-in-out;
+        .content-section {
+            display: none;
         }
-        .upload-area:hover {
-            border-color: #007bff;
+        .content-section.active {
+            display: block;
         }
-        .upload-area.dragover {
-            border-color: #007bff;
-            background-color: rgba(0,123,255,.05);
-        }
-        
-        /* 商品種別バッジ色分け */
-        .badge-type-stock { background-color: #0d6efd !important; }
-        .badge-type-bond { background-color: #198754 !important; }
-        .badge-type-fund { background-color: #ffc107 !important; color: #000 !important; }
-        .badge-type-etf { background-color: #0dcaf0 !important; color: #000 !important; }
-        .badge-type-reit { background-color: #6c757d !important; }
-        .badge-type-commodity { background-color: #212529 !important; }
-        
-        /* リスクレベルグラデーション */
-        .badge-risk-1 { background-color: #d4edda !important; color: #155724 !important; border: 1px solid #c3e6cb; }
-        .badge-risk-2 { background-color: #b8daff !important; color: #004085 !important; border: 1px solid #9ec5fe; }
-        .badge-risk-3 { background-color: #fff3cd !important; color: #856404 !important; border: 1px solid #ffeaa7; }
-        .badge-risk-4 { background-color: #f8d7da !important; color: #721c24 !important; border: 1px solid #f1aeb5; }
-        .badge-risk-5 { background-color: #dc3545 !important; color: #fff !important; border: 1px solid #b02a37; }
     </style>
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
             <!-- サイドバー -->
-            <nav class="col-md-2 d-md-block sidebar collapse">
+            <nav class="col-md-2 d-md-block sidebar">
                 <div class="position-sticky pt-3">
                     <h5 class="px-3 mb-3">
                         <i class="fas fa-box me-2"></i>ProductMaster
@@ -86,34 +63,10 @@
             <!-- メインコンテンツ -->
             <main class="col-md-10 ms-sm-auto main-content">
                 <!-- 商品一覧セクション -->
-                <div id="products-section" class="content-section">
+                <div id="products-section" class="content-section active">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                         <h1 class="h2"><i class="fas fa-list me-2"></i>商品一覧</h1>
                         <span class="badge bg-info fs-6">商品数: <span id="productCount">0</span>件</span>
-                    </div>
-
-                    <!-- Control Panel -->
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="searchInput" placeholder="商品名・コードで検索...">
-                                <button class="btn btn-outline-secondary" type="button" disabled>
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                        <div class="col-md-4">
-                            <button class="btn btn-success me-2" disabled>
-                                <i class="fas fa-download"></i> CSV ダウンロード
-                            </button>
-                            <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#uploadModal">
-                                <i class="fas fa-upload"></i> CSV アップロード
-                            </button>
-                            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#addProductModal">
-                                <i class="fas fa-plus"></i> 新規追加
-                            </button>
-                        </div>
                     </div>
 
                     <!-- 商品表示エリア -->
@@ -128,22 +81,33 @@
                 </div>
 
                 <!-- カテゴリ管理セクション -->
-                <div id="categories-section" class="content-section" style="display: none;">
-                    <h1>🎯 カテゴリ管理セクション表示テスト成功！</h1>
-                    <p>この文字列が見えていれば、カテゴリ管理セクションは正常に動作しています。</p>
-                    <p>セクション切り替え機能: ✅ 正常動作</p>
+                <div id="categories-section" class="content-section">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                        <h1 class="h2"><i class="fas fa-tags me-2"></i>カテゴリ管理</h1>
+                    </div>
+                    
+                    <div class="alert alert-success" role="alert">
+                        <h4 class="alert-heading">🎯 カテゴリ管理セクション</h4>
+                        <p>カテゴリ管理機能が正常に表示されています。</p>
+                        <hr>
+                        <p class="mb-0">セクション切り替え: ✅ 正常動作</p>
+                    </div>
                 </div>
             </main>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        console.log('[DEBUG] HTML読み込み完了');
+
         // セクション切り替え
         function showSection(sectionName) {
             console.log('[DEBUG] showSection called with:', sectionName);
             
             // 全セクションを非表示
             document.querySelectorAll('.content-section').forEach(section => {
-                section.style.display = 'none';
+                section.classList.remove('active');
             });
             console.log('[DEBUG] All sections hidden');
             
@@ -156,7 +120,7 @@
             const targetSection = document.getElementById(sectionName + '-section');
             console.log('[DEBUG] Target section element:', targetSection);
             if (targetSection) {
-                targetSection.style.display = 'block';
+                targetSection.classList.add('active');
                 console.log('[DEBUG] Target section displayed:', sectionName + '-section');
             } else {
                 console.error('[DEBUG] Target section not found:', sectionName + '-section');
@@ -173,105 +137,22 @@
                 console.log('[DEBUG] Calling loadProducts()');
                 loadProducts();
             } else if (sectionName === 'categories') {
-                console.log('[DEBUG] Calling loadCategories()');
-                // loadCategories(); // 一時的に無効化
+                console.log('[DEBUG] Categories section displayed');
             }
         }
 
-        // カテゴリ一覧読み込み
-        async function loadCategories() {
-            console.log('[DEBUG] loadCategories() started');
+        // 商品読み込み
+        async function loadProducts() {
+            console.log('[DEBUG] loadProducts() started');
             try {
-                console.log('[DEBUG] Fetching ./api/categories');
-                const response = await fetch('./api/categories');
+                console.log('[DEBUG] Fetching ./api/products');
+                const response = await fetch('./api/products');
                 console.log('[DEBUG] Response status:', response.status, 'ok:', response.ok);
                 
-                const categories = await response.json();
-                console.log('[DEBUG] Categories data length:', categories.length);
-                console.log('[DEBUG] Categories data:', categories);
-                
-                const container = document.getElementById('categoriesContainer');
-                console.log('[DEBUG] Container element:', container);
-                
-                if (categories.length === 0) {
-                    console.log('[DEBUG] No categories, showing empty message');
-                    container.innerHTML = '<p class="text-muted">カテゴリが登録されていません。</p>';
-                    return;
-                }
-                
-                console.log('[DEBUG] Building HTML table');
-                let html = '<div class="table-responsive"><table class="table table-striped">';
-                html += '<thead><tr><th>ID</th><th>カテゴリ名</th><th>コード</th><th>説明</th><th>表示順序</th><th>状態</th><th>操作</th></tr></thead><tbody>';
-                
-                categories.forEach(category => {
-                    html += `<tr>
-                        <td>${category.category_id}</td>
-                        <td>${category.category_name}</td>
-                        <td><code>${category.category_code}</code></td>
-                        <td>${category.description || '-'}</td>
-                        <td>${category.display_order}</td>
-                        <td>${category.is_active ? '<span class="badge bg-success">有効</span>' : '<span class="badge bg-secondary">無効</span>'}</td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary" onclick="editCategory(${category.category_id})">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </td>
-                    </tr>`;
-                });
-                
-                html += '</tbody></table></div>';
-                console.log('[DEBUG] HTML built, length:', html.length);
-                console.log('[DEBUG] Setting container innerHTML');
-                container.innerHTML = html;
-                console.log('[DEBUG] loadCategories() completed successfully');
-            } catch (error) {
-                console.error('[DEBUG] loadCategories() error:', error);
-                document.getElementById('categoriesContainer').innerHTML = '<p class="text-danger">カテゴリの読み込みに失敗しました。</p>';
-            }
-        }
-
-        // カテゴリ登録
-        document.getElementById('categoryForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const formData = {
-                category_name: document.getElementById('categoryName').value,
-                category_code: document.getElementById('categoryCode').value,
-                description: document.getElementById('categoryDescription').value,
-                display_order: parseInt(document.getElementById('displayOrder').value),
-                is_active: document.getElementById('isActive').checked
-            };
-            
-            try {
-                const response = await fetch('./api/categories', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                if (response.ok) {
-                    alert('カテゴリが正常に登録されました。');
-                    document.getElementById('categoryForm').reset();
-                    loadCategories(); // カテゴリ一覧を再読み込み
-                } else {
-                    const error = await response.json();
-                    alert('登録に失敗しました: ' + error.detail);
-                }
-            } catch (error) {
-                console.error('カテゴリ登録エラー:', error);
-                alert('登録中にエラーが発生しました。');
-            }
-        });
-
-        // 商品読み込み（テーブル表示のみ）
-        async function loadProducts() {
-            try {
-                const response = await fetch('./api/products');
                 const data = await response.json();
-                
                 const products = data.products || data;
+                console.log('[DEBUG] Products data length:', products.length);
+                
                 document.getElementById('productCount').textContent = products.length;
                 
                 const container = document.getElementById('productsContainer');
@@ -280,7 +161,7 @@
                     return;
                 }
                 
-                // テーブル表示のみ
+                console.log('[DEBUG] Building products table');
                 let html = '<div class="table-responsive"><table class="table table-striped">';
                 html += '<thead><tr><th>商品コード</th><th>商品名</th><th>種別</th><th>通貨</th><th>発行者</th><th>リスクレベル</th></tr></thead><tbody>';
                 
@@ -291,27 +172,24 @@
                         <td><span class="badge bg-primary">${product.product_type}</span></td>
                         <td>${product.currency || 'JPY'}</td>
                         <td>${product.issuer || '-'}</td>
-                        <td><span class="badge badge-risk-${product.risk_level || 1}">リスク${product.risk_level || 1}</span></td>
+                        <td><span class="badge bg-secondary">リスク${product.risk_level || 1}</span></td>
                     </tr>`;
                 });
                 
                 html += '</tbody></table></div>';
+                console.log('[DEBUG] HTML built, length:', html.length);
                 container.innerHTML = html;
+                console.log('[DEBUG] loadProducts() completed successfully');
                 
             } catch (error) {
-                console.error('商品読み込みエラー:', error);
+                console.error('[DEBUG] loadProducts() error:', error);
                 document.getElementById('productsContainer').innerHTML = '<p class="text-danger">商品の読み込みに失敗しました。</p>';
             }
         }
 
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
-            // 商品セクションのみ表示
-            document.getElementById('products-section').style.display = 'block';
-            document.getElementById('categories-section').style.display = 'none';
-            
-            // 商品一覧のナビリンクをアクティブに
-            document.querySelector('a[onclick="showSection(\'products\')"]').classList.add('active');
+            console.log('[DEBUG] DOMContentLoaded fired');
             
             // 商品データ読み込み
             loadProducts();
