@@ -124,7 +124,7 @@ def get_products():
         cur.execute("""
             SELECT product_id, product_code, product_name, product_type, 
                    currency, issuer, minimum_investment, risk_level, description
-            FROM products 
+            FROM products_with_category 
             WHERE is_active = true
             ORDER BY product_id
         """)
@@ -171,14 +171,14 @@ async def create_product(product_data: dict):
         
         # 新規商品追加
         cur.execute("""
-            INSERT INTO products (product_code, product_name, product_type, currency, issuer, 
+            INSERT INTO products (product_code, product_name, category_id, currency, issuer, 
                                 minimum_investment, risk_level, description, is_active, created_at, updated_at)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING product_id
         """, (
             product_data['product_code'],
             product_data['product_name'],
-            product_data.get('product_type', ''),
+            product_data.get('category_id', 1),  # デフォルト: 債券
             product_data.get('currency', 'JPY'),
             product_data.get('issuer', ''),
             product_data.get('minimum_investment', 0),
@@ -220,7 +220,7 @@ def update_product(product_id: int, product_data: dict):
             UPDATE products SET 
                 product_code = %s,
                 product_name = %s,
-                product_type = %s,
+                category_id = %s,
                 currency = %s,
                 issuer = %s,
                 risk_level = %s,
@@ -232,7 +232,7 @@ def update_product(product_id: int, product_data: dict):
         cur.execute(update_query, (
             product_data.get("product_code"),
             product_data.get("product_name"),
-            product_data.get("product_type"),
+            product_data.get("category_id", 1),  # デフォルト: 債券
             product_data.get("currency", "JPY"),
             product_data.get("issuer"),
             product_data.get("risk_level", 1),
@@ -246,7 +246,7 @@ def update_product(product_id: int, product_data: dict):
         cur.execute("""
             SELECT product_id, product_code, product_name, product_type, 
                    currency, issuer, minimum_investment, risk_level, description
-            FROM products WHERE product_id = %s
+            FROM products_with_category WHERE product_id = %s
         """, (product_id,))
         result = cur.fetchone()
         
@@ -281,7 +281,7 @@ def download_products():
         df = pd.read_sql_query("""
             SELECT product_code, product_name, product_type, currency, issuer, 
                    minimum_investment, risk_level, description
-            FROM products 
+            FROM products_with_category 
             WHERE is_active = true
             ORDER BY product_id
         """, conn)
