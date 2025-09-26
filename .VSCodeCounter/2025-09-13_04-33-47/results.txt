@@ -1,0 +1,70 @@
+Date : 2025-09-13 04:33:47
+Directory : c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster
+Total : 32 files,  6696 codes, 158 comments, 890 blanks, all 7744 lines
+
+Languages
++------------------+------------+------------+------------+------------+------------+
+| language         | files      | code       | comment    | blank      | total      |
++------------------+------------+------------+------------+------------+------------+
+| HTML             |          9 |      4,562 |         52 |        409 |      5,023 |
+| Markdown         |         13 |      1,344 |          0 |        321 |      1,665 |
+| MS SQL           |          4 |        294 |         61 |         59 |        414 |
+| Python           |          1 |        235 |         12 |         37 |        284 |
+| Shell Script     |          3 |        184 |         24 |         49 |        257 |
+| JavaScript       |          1 |         63 |          9 |         14 |         86 |
+| pip requirements |          1 |         14 |          0 |          1 |         15 |
++------------------+------------+------------+------------+------------+------------+
+
+Directories
++----------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                               | files      | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                  |         32 |      6,696 |        158 |        890 |      7,744 |
+| . (Files)                                                                                          |         17 |      1,509 |         38 |        351 |      1,898 |
+| backend                                                                                            |          2 |        249 |         12 |         38 |        299 |
+| database                                                                                           |          2 |        204 |         35 |         35 |        274 |
+| database (Files)                                                                                   |          1 |         82 |         22 |         22 |        126 |
+| database\schema                                                                                    |          1 |        122 |         13 |         13 |        148 |
+| deploy                                                                                             |          1 |         64 |         12 |         18 |         94 |
+| docs                                                                                               |          1 |        277 |          0 |         50 |        327 |
+| web                                                                                                |          9 |      4,393 |         61 |        398 |      4,852 |
++----------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++----------------------------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
+| filename                                                                                           | language         | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\DESIGN.md                            | Markdown         |        169 |          0 |         33 |        202 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\README.md                            | Markdown         |         44 |          0 |         17 |         61 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\SYSTEM_DESIGN.md                     | Markdown         |        195 |          0 |         43 |        238 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\aws_deployment_completion.md         | Markdown         |        115 |          0 |         22 |        137 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\aws_deployment_plan.md               | Markdown         |         14 |          0 |          4 |         18 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\aws_deployment_plan_revised.md       | Markdown         |         17 |          0 |          5 |         22 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\backend\main.py                      | Python           |        235 |         12 |         37 |        284 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\backend\requirements.txt             | pip requirements |         14 |          0 |          1 |         15 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\csv_download_report.md               | Markdown         |        105 |          0 |         30 |        135 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\database\sample_data.sql             | MS SQL           |         82 |         22 |         22 |        126 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\database\schema\01_create_tables.sql | MS SQL           |        122 |         13 |         13 |        148 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\deploy\update.sh                     | Shell Script     |         64 |         12 |         18 |         94 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\deploy_to_aws.sh                     | Shell Script     |         94 |          9 |         21 |        124 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\deployment_complete.md               | Markdown         |         91 |          0 |         27 |        118 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\deployment_status.md                 | Markdown         |         23 |          0 |          6 |         29 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\docs\ProductMaster_System_Design.md  | Markdown         |        277 |          0 |         50 |        327 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\encoding_support_report.md           | Markdown         |        122 |          0 |         37 |        159 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\feature_update_report.md             | Markdown         |         88 |          0 |         27 |        115 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\product_viewer.html                  | HTML             |        232 |          0 |         25 |        257 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\productmaster_sample_expansion.sql   | MS SQL           |         25 |          7 |          7 |         39 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\sample_data_expansion.sql            | MS SQL           |         65 |         19 |         17 |        101 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\update_sample_data.sh                | Shell Script     |         26 |          3 |         10 |         39 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\download_js.html                 | HTML             |        626 |          3 |         76 |        705 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\encoding_fix.js                  | JavaScript       |         63 |          9 |         14 |         86 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\encoding_modal.html              | HTML             |         52 |          1 |          5 |         58 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\index.html                       | HTML             |        756 |          7 |         67 |        830 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\index_final.html                 | HTML             |        916 |         11 |         82 |      1,009 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\index_new.html                   | HTML             |        276 |          8 |          7 |        291 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\index_new2.html                  | HTML             |        569 |          3 |         67 |        639 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\index_updated.html               | HTML             |        845 |         11 |         73 |        929 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\index_with_download.html         | HTML             |        290 |          8 |          7 |        305 |
+| c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\work_status.md                       | Markdown         |         84 |          0 |         20 |        104 |
+| Total                                                                                              |                  |      6,696 |        158 |        890 |      7,744 |
++----------------------------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+

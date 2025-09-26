@@ -1,0 +1,34 @@
+"filename", "language", "Markdown", "MS SQL", "Shell Script", "HTML", "JavaScript", "pip requirements", "Python", "comment", "blank", "total"
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\DESIGN.md", "Markdown", 169, 0, 0, 0, 0, 0, 0, 0, 33, 202
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\README.md", "Markdown", 44, 0, 0, 0, 0, 0, 0, 0, 17, 61
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\SYSTEM_DESIGN.md", "Markdown", 195, 0, 0, 0, 0, 0, 0, 0, 43, 238
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\aws_deployment_completion.md", "Markdown", 115, 0, 0, 0, 0, 0, 0, 0, 22, 137
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\aws_deployment_plan.md", "Markdown", 14, 0, 0, 0, 0, 0, 0, 0, 4, 18
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\aws_deployment_plan_revised.md", "Markdown", 17, 0, 0, 0, 0, 0, 0, 0, 5, 22
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\backend\main.py", "Python", 0, 0, 0, 0, 0, 0, 235, 12, 37, 284
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\backend\requirements.txt", "pip requirements", 0, 0, 0, 0, 0, 14, 0, 0, 1, 15
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\csv_download_report.md", "Markdown", 105, 0, 0, 0, 0, 0, 0, 0, 30, 135
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\database\sample_data.sql", "MS SQL", 0, 82, 0, 0, 0, 0, 0, 22, 22, 126
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\database\schema\01_create_tables.sql", "MS SQL", 0, 122, 0, 0, 0, 0, 0, 13, 13, 148
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\deploy\update.sh", "Shell Script", 0, 0, 64, 0, 0, 0, 0, 12, 18, 94
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\deploy_to_aws.sh", "Shell Script", 0, 0, 94, 0, 0, 0, 0, 9, 21, 124
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\deployment_complete.md", "Markdown", 91, 0, 0, 0, 0, 0, 0, 0, 27, 118
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\deployment_status.md", "Markdown", 23, 0, 0, 0, 0, 0, 0, 0, 6, 29
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\docs\ProductMaster_System_Design.md", "Markdown", 277, 0, 0, 0, 0, 0, 0, 0, 50, 327
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\encoding_support_report.md", "Markdown", 122, 0, 0, 0, 0, 0, 0, 0, 37, 159
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\feature_update_report.md", "Markdown", 88, 0, 0, 0, 0, 0, 0, 0, 27, 115
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\product_viewer.html", "HTML", 0, 0, 0, 232, 0, 0, 0, 0, 25, 257
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\productmaster_sample_expansion.sql", "MS SQL", 0, 25, 0, 0, 0, 0, 0, 7, 7, 39
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\sample_data_expansion.sql", "MS SQL", 0, 65, 0, 0, 0, 0, 0, 19, 17, 101
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\update_sample_data.sh", "Shell Script", 0, 0, 26, 0, 0, 0, 0, 3, 10, 39
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\download_js.html", "HTML", 0, 0, 0, 626, 0, 0, 0, 3, 76, 705
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\encoding_fix.js", "JavaScript", 0, 0, 0, 0, 63, 0, 0, 9, 14, 86
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\encoding_modal.html", "HTML", 0, 0, 0, 52, 0, 0, 0, 1, 5, 58
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\index.html", "HTML", 0, 0, 0, 756, 0, 0, 0, 7, 67, 830
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\index_final.html", "HTML", 0, 0, 0, 916, 0, 0, 0, 11, 82, 1009
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\index_new.html", "HTML", 0, 0, 0, 276, 0, 0, 0, 8, 7, 291
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\index_new2.html", "HTML", 0, 0, 0, 569, 0, 0, 0, 3, 67, 639
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\index_updated.html", "HTML", 0, 0, 0, 845, 0, 0, 0, 11, 73, 929
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\web\index_with_download.html", "HTML", 0, 0, 0, 290, 0, 0, 0, 8, 7, 305
+"c:\Users\takehig\QCHAT\.qchat_projects\WealthAI\ProductMaster\work_status.md", "Markdown", 84, 0, 0, 0, 0, 0, 0, 0, 20, 104
+"Total", "-", 1344, 294, 184, 4562, 63, 14, 235, 158, 890, 7744
