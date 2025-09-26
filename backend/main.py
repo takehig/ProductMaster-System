@@ -258,7 +258,7 @@ def update_product(product_id: int, product_data: dict):
                 "id": result[0],
                 "product_code": result[1],
                 "product_name": result[2],
-                "product_type": result[3],
+                "category_code": result[3],
                 "currency": result[4],
                 "issuer": result[5],
                 "minimum_investment": float(result[6]) if result[6] else 0,
@@ -311,12 +311,12 @@ async def upload_products(file: UploadFile = File(...)):
         uploaded_count = 0
         for _, row in df.iterrows():
             cur.execute("""
-                INSERT INTO products (product_code, product_name, product_type, currency, issuer, 
+                INSERT INTO products (product_code, product_name, category_id, currency, issuer, 
                                     minimum_investment, risk_level, description, is_active, created_at)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, true, %s)
                 ON CONFLICT (product_code) DO UPDATE SET
                     product_name = EXCLUDED.product_name,
-                    product_type = EXCLUDED.product_type,
+                    category_id = EXCLUDED.category_id,
                     currency = EXCLUDED.currency,
                     issuer = EXCLUDED.issuer,
                     minimum_investment = EXCLUDED.minimum_investment,
@@ -326,7 +326,7 @@ async def upload_products(file: UploadFile = File(...)):
             """, (
                 row.get('product_code', ''),
                 row.get('product_name', ''),
-                row.get('product_type', ''),
+                row.get('category_id', 1),  # デフォルト: 債券
                 row.get('currency', 'JPY'),
                 row.get('issuer', ''),
                 row.get('minimum_investment', 0),
