@@ -89,7 +89,12 @@
                 <div id="categories-section" class="content-section">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                         <h1 class="h2"><i class="fas fa-tags me-2"></i>カテゴリ管理</h1>
-                        <span class="badge bg-info fs-6">カテゴリ数: <span id="categoryCount">0</span>件</span>
+                        <div class="d-flex align-items-center gap-3">
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                <i class="fas fa-plus me-2"></i>新規追加
+                            </button>
+                            <span class="badge bg-info fs-6">カテゴリ数: <span id="categoryCount">0</span>件</span>
+                        </div>
                     </div>
                     
                     <!-- カテゴリ表示エリア -->
@@ -281,6 +286,99 @@
         </div>
     </div>
 
+    <!-- カテゴリ新規追加モーダル -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCategoryModalLabel">
+                        <i class="fas fa-plus me-2"></i>新規カテゴリ追加
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addCategoryForm">
+                        <div class="mb-3">
+                            <label for="categoryName" class="form-label">カテゴリ名 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="categoryName" name="category_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categoryCode" class="form-label">カテゴリコード <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="categoryCode" name="category_code" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categoryDescription" class="form-label">説明</label>
+                            <textarea class="form-control" id="categoryDescription" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="displayOrder" class="form-label">表示順序</label>
+                            <input type="number" class="form-control" id="displayOrder" name="display_order" value="0" min="0">
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="isActive" name="is_active" checked>
+                                <label class="form-check-label" for="isActive">有効</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-success" onclick="addCategory()">
+                        <i class="fas fa-save me-2"></i>追加
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- カテゴリ編集モーダル -->
+    <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCategoryModalLabel">
+                        <i class="fas fa-edit me-2"></i>カテゴリ編集
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editCategoryForm">
+                        <input type="hidden" id="editCategoryId" name="category_id">
+                        <div class="mb-3">
+                            <label for="editCategoryName" class="form-label">カテゴリ名 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="editCategoryName" name="category_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCategoryCode" class="form-label">カテゴリコード <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="editCategoryCode" name="category_code" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCategoryDescription" class="form-label">説明</label>
+                            <textarea class="form-control" id="editCategoryDescription" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDisplayOrder" class="form-label">表示順序</label>
+                            <input type="number" class="form-control" id="editDisplayOrder" name="display_order" min="0">
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="editIsActive" name="is_active">
+                                <label class="form-check-label" for="editIsActive">有効</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-primary" onclick="updateCategory()">
+                        <i class="fas fa-save me-2"></i>更新
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         console.log('[DEBUG] HTML読み込み完了');
@@ -385,6 +483,191 @@
             } catch (error) {
                 console.error('[DEBUG] loadProducts() error:', error);
                 document.getElementById('productsContainer').innerHTML = '<p class="text-danger">商品の読み込みに失敗しました。</p>';
+            }
+        }
+
+        // カテゴリソート機能
+        let categorySortDirection = {};
+        
+        function sortCategoryTable(columnIndex) {
+            const table = document.querySelector('#categoriesContainer table');
+            if (!table) return;
+            
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            const currentDirection = categorySortDirection[columnIndex] || 'asc';
+            const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+            categorySortDirection[columnIndex] = newDirection;
+            
+            rows.sort((a, b) => {
+                const aText = a.cells[columnIndex].textContent.trim();
+                const bText = b.cells[columnIndex].textContent.trim();
+                
+                const aNum = parseFloat(aText);
+                const bNum = parseFloat(bText);
+                
+                let comparison = 0;
+                if (!isNaN(aNum) && !isNaN(bNum)) {
+                    comparison = aNum - bNum;
+                } else {
+                    comparison = aText.localeCompare(bText, 'ja');
+                }
+                
+                return newDirection === 'asc' ? comparison : -comparison;
+            });
+            
+            rows.forEach(row => tbody.appendChild(row));
+            updateCategorySortIndicators(columnIndex, newDirection);
+        }
+        
+        function updateCategorySortIndicators(activeColumn, direction) {
+            for (let i = 0; i < 6; i++) {
+                const indicator = document.getElementById(`catSort${i}`);
+                if (indicator) {
+                    indicator.textContent = '';
+                }
+            }
+            
+            const activeIndicator = document.getElementById(`catSort${activeColumn}`);
+            if (activeIndicator) {
+                activeIndicator.textContent = direction === 'asc' ? '↑' : '↓';
+            }
+        }
+
+        // カテゴリ新規追加
+        async function addCategory() {
+            const form = document.getElementById('addCategoryForm');
+            const formData = new FormData(form);
+            
+            if (!formData.get('category_name') || !formData.get('category_code')) {
+                alert('必須項目を入力してください。');
+                return;
+            }
+            
+            const categoryData = {};
+            for (let [key, value] of formData.entries()) {
+                if (key === 'is_active') {
+                    categoryData[key] = document.getElementById('isActive').checked;
+                } else {
+                    categoryData[key] = value;
+                }
+            }
+            
+            try {
+                const response = await fetch('./api/categories', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(categoryData)
+                });
+                
+                if (response.ok) {
+                    alert('カテゴリを追加しました。');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addCategoryModal'));
+                    modal.hide();
+                    form.reset();
+                    loadCategories();
+                } else {
+                    const error = await response.text();
+                    alert('追加に失敗しました: ' + error);
+                }
+            } catch (error) {
+                console.error('カテゴリ追加エラー:', error);
+                alert('追加中にエラーが発生しました。');
+            }
+        }
+
+        // カテゴリ編集
+        async function editCategory(categoryId) {
+            try {
+                const response = await fetch(`./api/categories/${categoryId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const category = await response.json();
+                
+                document.getElementById('editCategoryId').value = category.category_id;
+                document.getElementById('editCategoryName').value = category.category_name;
+                document.getElementById('editCategoryCode').value = category.category_code;
+                document.getElementById('editCategoryDescription').value = category.description || '';
+                document.getElementById('editDisplayOrder').value = category.display_order || 0;
+                document.getElementById('editIsActive').checked = category.is_active;
+                
+            } catch (error) {
+                console.error('カテゴリ詳細取得エラー:', error);
+                alert('カテゴリ情報の取得に失敗しました。');
+            }
+        }
+
+        // カテゴリ更新
+        async function updateCategory() {
+            const form = document.getElementById('editCategoryForm');
+            const formData = new FormData(form);
+            const categoryId = formData.get('category_id');
+            
+            if (!formData.get('category_name') || !formData.get('category_code')) {
+                alert('必須項目を入力してください。');
+                return;
+            }
+            
+            const categoryData = {};
+            for (let [key, value] of formData.entries()) {
+                if (key !== 'category_id') {
+                    if (key === 'is_active') {
+                        categoryData[key] = document.getElementById('editIsActive').checked;
+                    } else {
+                        categoryData[key] = value;
+                    }
+                }
+            }
+            
+            try {
+                const response = await fetch(`./api/categories/${categoryId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(categoryData)
+                });
+                
+                if (response.ok) {
+                    alert('カテゴリを更新しました。');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editCategoryModal'));
+                    modal.hide();
+                    loadCategories();
+                } else {
+                    const error = await response.text();
+                    alert('更新に失敗しました: ' + error);
+                }
+            } catch (error) {
+                console.error('カテゴリ更新エラー:', error);
+                alert('更新中にエラーが発生しました。');
+            }
+        }
+
+        // カテゴリ削除
+        async function deleteCategory(categoryId, categoryName) {
+            if (!confirm(`カテゴリ「${categoryName}」を削除しますか？`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`./api/categories/${categoryId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    alert('カテゴリを削除しました。');
+                    loadCategories();
+                } else {
+                    const error = await response.text();
+                    alert('削除に失敗しました: ' + error);
+                }
+            } catch (error) {
+                console.error('カテゴリ削除エラー:', error);
+                alert('削除中にエラーが発生しました。');
             }
         }
 
@@ -658,7 +941,15 @@
                 
                 console.log('[DEBUG] Building categories table');
                 let html = '<div class="table-responsive"><table class="table table-striped">';
-                html += '<thead><tr><th>ID</th><th>カテゴリ名</th><th>コード</th><th>説明</th><th>表示順序</th><th>状態</th></tr></thead><tbody>';
+                html += '<thead><tr>' +
+                    '<th onclick="sortCategoryTable(0)" style="cursor: pointer;">ID <span id="catSort0"></span></th>' +
+                    '<th onclick="sortCategoryTable(1)" style="cursor: pointer;">カテゴリ名 <span id="catSort1"></span></th>' +
+                    '<th onclick="sortCategoryTable(2)" style="cursor: pointer;">コード <span id="catSort2"></span></th>' +
+                    '<th onclick="sortCategoryTable(3)" style="cursor: pointer;">説明 <span id="catSort3"></span></th>' +
+                    '<th onclick="sortCategoryTable(4)" style="cursor: pointer;">表示順序 <span id="catSort4"></span></th>' +
+                    '<th onclick="sortCategoryTable(5)" style="cursor: pointer;">状態 <span id="catSort5"></span></th>' +
+                    '<th>操作</th>' +
+                    '</tr></thead><tbody>';
                 
                 categories.forEach(category => {
                     html += `<tr>
@@ -668,6 +959,14 @@
                         <td>${category.description || '-'}</td>
                         <td>${category.display_order}</td>
                         <td>${category.is_active ? '<span class="badge bg-success">有効</span>' : '<span class="badge bg-secondary">無効</span>'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="editCategory(${category.category_id})" data-bs-toggle="modal" data-bs-target="#editCategoryModal">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${category.category_id}, '${category.category_name}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
                     </tr>`;
                 });
                 

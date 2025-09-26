@@ -116,6 +116,104 @@ def create_category(category: CategoryCreate):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"カテゴリ登録エラー: {str(e)}")
 
+@app.get("/api/categories/{category_id}")
+def get_category_detail(category_id: int):
+    """カテゴリ詳細取得"""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        cur.execute("SELECT * FROM product_categories WHERE category_id = %s", (category_id,))
+        result = cur.fetchone()
+        
+        cur.close()
+        conn.close()
+        
+        if result:
+            return {
+                "category_id": result[0],
+                "category_name": result[1],
+                "category_code": result[2],
+                "description": result[3],
+                "display_order": result[4],
+                "is_active": result[5]
+            }
+        else:
+            raise HTTPException(status_code=404, detail="カテゴリが見つかりません")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@app.put("/api/categories/{category_id}")
+def update_category(category_id: int, category_data: dict):
+    """カテゴリ更新"""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # カテゴリの存在確認
+        cur.execute("SELECT category_id FROM product_categories WHERE category_id = %s", (category_id,))
+        if not cur.fetchone():
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=404, detail="カテゴリが見つかりません")
+        
+        # カテゴリ更新
+        cur.execute("""
+            UPDATE product_categories SET 
+                category_name = %s, category_code = %s, description = %s, 
+                display_order = %s, is_active = %s, updated_at = CURRENT_TIMESTAMP
+            WHERE category_id = %s
+        """, (
+            category_data.get('category_name'),
+            category_data.get('category_code'),
+            category_data.get('description'),
+            category_data.get('display_order', 0),
+            category_data.get('is_active', True),
+            category_id
+        ))
+        conn.commit()
+        
+        cur.close()
+        conn.close()
+        
+        return {"message": "カテゴリを更新しました", "category_id": category_id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@app.delete("/api/categories/{category_id}")
+def delete_category(category_id: int):
+    """カテゴリ削除"""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # カテゴリの存在確認
+        cur.execute("SELECT category_id FROM product_categories WHERE category_id = %s", (category_id,))
+        if not cur.fetchone():
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=404, detail="カテゴリが見つかりません")
+        
+        # カテゴリ削除（論理削除）
+        cur.execute("UPDATE product_categories SET is_active = false WHERE category_id = %s", (category_id,))
+        conn.commit()
+        
+        cur.close()
+        conn.close()
+        
+        return {"message": "カテゴリを削除しました", "category_id": category_id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
 @app.get("/api/products")
 def get_products():
     try:
