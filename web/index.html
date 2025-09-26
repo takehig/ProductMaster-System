@@ -84,13 +84,17 @@
                 <div id="categories-section" class="content-section">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                         <h1 class="h2"><i class="fas fa-tags me-2"></i>カテゴリ管理</h1>
+                        <span class="badge bg-info fs-6">カテゴリ数: <span id="categoryCount">0</span>件</span>
                     </div>
                     
-                    <div class="alert alert-success" role="alert">
-                        <h4 class="alert-heading">🎯 カテゴリ管理セクション</h4>
-                        <p>カテゴリ管理機能が正常に表示されています。</p>
-                        <hr>
-                        <p class="mb-0">セクション切り替え: ✅ 正常動作</p>
+                    <!-- カテゴリ表示エリア -->
+                    <div id="categoriesContainer">
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">カテゴリデータを読み込み中...</p>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -137,7 +141,8 @@
                 console.log('[DEBUG] Calling loadProducts()');
                 loadProducts();
             } else if (sectionName === 'categories') {
-                console.log('[DEBUG] Categories section displayed');
+                console.log('[DEBUG] Calling loadCategories()');
+                loadCategories();
             }
         }
 
@@ -184,6 +189,51 @@
             } catch (error) {
                 console.error('[DEBUG] loadProducts() error:', error);
                 document.getElementById('productsContainer').innerHTML = '<p class="text-danger">商品の読み込みに失敗しました。</p>';
+            }
+        }
+
+        // カテゴリ読み込み
+        async function loadCategories() {
+            console.log('[DEBUG] loadCategories() started');
+            try {
+                console.log('[DEBUG] Fetching ./api/categories');
+                const response = await fetch('./api/categories');
+                console.log('[DEBUG] Response status:', response.status, 'ok:', response.ok);
+                
+                const categories = await response.json();
+                console.log('[DEBUG] Categories data length:', categories.length);
+                
+                document.getElementById('categoryCount').textContent = categories.length;
+                
+                const container = document.getElementById('categoriesContainer');
+                if (categories.length === 0) {
+                    container.innerHTML = '<p class="text-muted">カテゴリが登録されていません。</p>';
+                    return;
+                }
+                
+                console.log('[DEBUG] Building categories table');
+                let html = '<div class="table-responsive"><table class="table table-striped">';
+                html += '<thead><tr><th>ID</th><th>カテゴリ名</th><th>コード</th><th>説明</th><th>表示順序</th><th>状態</th></tr></thead><tbody>';
+                
+                categories.forEach(category => {
+                    html += `<tr>
+                        <td>${category.category_id}</td>
+                        <td>${category.category_name}</td>
+                        <td><code>${category.category_code}</code></td>
+                        <td>${category.description || '-'}</td>
+                        <td>${category.display_order}</td>
+                        <td>${category.is_active ? '<span class="badge bg-success">有効</span>' : '<span class="badge bg-secondary">無効</span>'}</td>
+                    </tr>`;
+                });
+                
+                html += '</tbody></table></div>';
+                console.log('[DEBUG] HTML built, length:', html.length);
+                container.innerHTML = html;
+                console.log('[DEBUG] loadCategories() completed successfully');
+                
+            } catch (error) {
+                console.error('[DEBUG] loadCategories() error:', error);
+                document.getElementById('categoriesContainer').innerHTML = '<p class="text-danger">カテゴリの読み込みに失敗しました。</p>';
             }
         }
 
