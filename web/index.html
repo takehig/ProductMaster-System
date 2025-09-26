@@ -194,6 +194,93 @@
         </div>
     </div>
 
+    <!-- 商品編集モーダル -->
+    <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProductModalLabel">
+                        <i class="fas fa-edit me-2"></i>商品編集
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProductForm">
+                        <input type="hidden" id="editProductId" name="product_id">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editProductCode" class="form-label">商品コード <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="editProductCode" name="product_code" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editCategoryId" class="form-label">カテゴリ <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="editCategoryId" name="category_id" required>
+                                        <option value="">カテゴリを選択してください</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editProductName" class="form-label">商品名 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="editProductName" name="product_name" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editCurrency" class="form-label">通貨</label>
+                                    <select class="form-select" id="editCurrency" name="currency">
+                                        <option value="JPY">JPY</option>
+                                        <option value="USD">USD</option>
+                                        <option value="EUR">EUR</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editRiskLevel" class="form-label">リスクレベル</label>
+                                    <select class="form-select" id="editRiskLevel" name="risk_level">
+                                        <option value="1">1 (低リスク)</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3 (中リスク)</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5 (高リスク)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editIssuer" class="form-label">発行者</label>
+                                    <input type="text" class="form-control" id="editIssuer" name="issuer">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editMinimumInvestment" class="form-label">最小投資額</label>
+                                    <input type="number" class="form-control" id="editMinimumInvestment" name="minimum_investment" min="0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDescription" class="form-label">説明</label>
+                            <textarea class="form-control" id="editDescription" name="description" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-primary" onclick="updateProduct()">
+                        <i class="fas fa-save me-2"></i>更新
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         console.log('[DEBUG] HTML読み込み完了');
@@ -268,6 +355,7 @@
                     '<th onclick="sortTable(3)" style="cursor: pointer;">通貨 <span id="sort3"></span></th>' +
                     '<th onclick="sortTable(4)" style="cursor: pointer;">発行者 <span id="sort4"></span></th>' +
                     '<th onclick="sortTable(5)" style="cursor: pointer;">リスクレベル <span id="sort5"></span></th>' +
+                    '<th>操作</th>' +
                     '</tr></thead><tbody>';
                 
                 products.forEach(product => {
@@ -278,6 +366,14 @@
                         <td>${product.currency || 'JPY'}</td>
                         <td>${product.issuer || '-'}</td>
                         <td><span class="badge bg-secondary">リスク${product.risk_level || 1}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="editProduct(${product.id})" data-bs-toggle="modal" data-bs-target="#editProductModal">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${product.id}, '${product.product_name}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
                     </tr>`;
                 });
                 
@@ -289,6 +385,131 @@
             } catch (error) {
                 console.error('[DEBUG] loadProducts() error:', error);
                 document.getElementById('productsContainer').innerHTML = '<p class="text-danger">商品の読み込みに失敗しました。</p>';
+            }
+        }
+
+        // 商品編集
+        async function editProduct(productId) {
+            try {
+                // 商品詳細取得
+                const response = await fetch(`./api/products/${productId}`);
+                const product = await response.json();
+                
+                // フォームに値設定
+                document.getElementById('editProductId').value = product.id;
+                document.getElementById('editProductCode').value = product.product_code;
+                document.getElementById('editProductName').value = product.product_name;
+                document.getElementById('editCurrency').value = product.currency || 'JPY';
+                document.getElementById('editRiskLevel').value = product.risk_level || '1';
+                document.getElementById('editIssuer').value = product.issuer || '';
+                document.getElementById('editMinimumInvestment').value = product.minimum_investment || '';
+                document.getElementById('editDescription').value = product.description || '';
+                
+                // カテゴリ選択肢読み込み
+                await loadEditCategoryOptions();
+                
+                // カテゴリ設定（category_idが必要）
+                // APIレスポンスにcategory_idが含まれていない場合の対処
+                const categories = await fetch('./api/categories').then(r => r.json());
+                const category = categories.find(c => c.category_code === product.category_code);
+                if (category) {
+                    document.getElementById('editCategoryId').value = category.category_id;
+                }
+                
+            } catch (error) {
+                console.error('商品詳細取得エラー:', error);
+                alert('商品情報の取得に失敗しました。');
+            }
+        }
+
+        // 編集用カテゴリ選択肢読み込み
+        async function loadEditCategoryOptions() {
+            try {
+                const response = await fetch('./api/categories');
+                const categories = await response.json();
+                
+                const select = document.getElementById('editCategoryId');
+                select.innerHTML = '<option value="">カテゴリを選択してください</option>';
+                
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.category_id;
+                    option.textContent = `${category.category_name} (${category.category_code})`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('カテゴリ読み込みエラー:', error);
+            }
+        }
+
+        // 商品更新
+        async function updateProduct() {
+            const form = document.getElementById('editProductForm');
+            const formData = new FormData(form);
+            const productId = formData.get('product_id');
+            
+            // バリデーション
+            if (!formData.get('product_code') || !formData.get('product_name') || !formData.get('category_id')) {
+                alert('必須項目を入力してください。');
+                return;
+            }
+            
+            // FormDataをJSONに変換
+            const productData = {};
+            for (let [key, value] of formData.entries()) {
+                if (key !== 'product_id') {
+                    productData[key] = value;
+                }
+            }
+            
+            try {
+                const response = await fetch(`./api/products/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(productData)
+                });
+                
+                if (response.ok) {
+                    alert('商品を更新しました。');
+                    // モーダルを閉じる
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editProductModal'));
+                    modal.hide();
+                    // 商品一覧を再読み込み
+                    loadProducts();
+                } else {
+                    const error = await response.text();
+                    alert('更新に失敗しました: ' + error);
+                }
+            } catch (error) {
+                console.error('商品更新エラー:', error);
+                alert('更新中にエラーが発生しました。');
+            }
+        }
+
+        // 商品削除
+        async function deleteProduct(productId, productName) {
+            if (!confirm(`商品「${productName}」を削除しますか？`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`./api/products/${productId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    alert('商品を削除しました。');
+                    // 商品一覧を再読み込み
+                    loadProducts();
+                } else {
+                    const error = await response.text();
+                    alert('削除に失敗しました: ' + error);
+                }
+            } catch (error) {
+                console.error('商品削除エラー:', error);
+                alert('削除中にエラーが発生しました。');
             }
         }
 
@@ -335,7 +556,7 @@
         
         function updateSortIndicators(activeColumn, direction) {
             // 全インジケーターリセット
-            for (let i = 0; i < 6; i++) {
+            for (let i = 0; i < 7; i++) {
                 const indicator = document.getElementById(`sort${i}`);
                 if (indicator) {
                     indicator.textContent = '';
