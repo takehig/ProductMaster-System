@@ -66,7 +66,12 @@
                 <div id="products-section" class="content-section active">
                     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                         <h1 class="h2"><i class="fas fa-list me-2"></i>商品一覧</h1>
-                        <span class="badge bg-info fs-6">商品数: <span id="productCount">0</span>件</span>
+                        <div class="d-flex align-items-center gap-3">
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                                <i class="fas fa-plus me-2"></i>新規追加
+                            </button>
+                            <span class="badge bg-info fs-6">商品数: <span id="productCount">0</span>件</span>
+                        </div>
                     </div>
 
                     <!-- 商品表示エリア -->
@@ -98,6 +103,94 @@
                     </div>
                 </div>
             </main>
+        </div>
+    </div>
+
+    <!-- 新規商品追加モーダル -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addProductModalLabel">
+                        <i class="fas fa-plus me-2"></i>新規商品追加
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addProductForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="productCode" class="form-label">商品コード <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="productCode" name="product_code" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="categoryId" class="form-label">カテゴリ <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="categoryId" name="category_id" required>
+                                        <option value="">カテゴリを選択してください</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">商品名 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="productName" name="product_name" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="currency" class="form-label">通貨</label>
+                                    <select class="form-select" id="currency" name="currency">
+                                        <option value="JPY">JPY</option>
+                                        <option value="USD">USD</option>
+                                        <option value="EUR">EUR</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="riskLevel" class="form-label">リスクレベル</label>
+                                    <select class="form-select" id="riskLevel" name="risk_level">
+                                        <option value="1">1 (低リスク)</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3 (中リスク)</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5 (高リスク)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="issuer" class="form-label">発行者</label>
+                                    <input type="text" class="form-control" id="issuer" name="issuer">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="minimumInvestment" class="form-label">最小投資額</label>
+                                    <input type="number" class="form-control" id="minimumInvestment" name="minimum_investment" min="0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">説明</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="button" class="btn btn-success" onclick="addProduct()">
+                        <i class="fas fa-save me-2"></i>追加
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
         </div>
     </div>
 
@@ -192,6 +285,62 @@
             }
         }
 
+        // カテゴリ選択肢読み込み
+        async function loadCategoryOptions() {
+            try {
+                const response = await fetch('./api/categories');
+                const data = await response.json();
+                
+                const select = document.getElementById('categoryId');
+                select.innerHTML = '<option value="">カテゴリを選択してください</option>';
+                
+                data.categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.category_id;
+                    option.textContent = `${category.category_name} (${category.category_code})`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('カテゴリ読み込みエラー:', error);
+            }
+        }
+
+        // 新規商品追加
+        async function addProduct() {
+            const form = document.getElementById('addProductForm');
+            const formData = new FormData(form);
+            
+            // バリデーション
+            if (!formData.get('product_code') || !formData.get('product_name') || !formData.get('category_id')) {
+                alert('必須項目を入力してください。');
+                return;
+            }
+            
+            try {
+                const response = await fetch('./api/products', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    alert('商品を追加しました。');
+                    // モーダルを閉じる
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));
+                    modal.hide();
+                    // フォームリセット
+                    form.reset();
+                    // 商品一覧を再読み込み
+                    loadProducts();
+                } else {
+                    const error = await response.text();
+                    alert('追加に失敗しました: ' + error);
+                }
+            } catch (error) {
+                console.error('商品追加エラー:', error);
+                alert('追加中にエラーが発生しました。');
+            }
+        }
+
         // カテゴリ読み込み
         async function loadCategories() {
             console.log('[DEBUG] loadCategories() started');
@@ -243,6 +392,12 @@
             
             // 商品データ読み込み
             loadProducts();
+            
+            // モーダル表示時にカテゴリ読み込み
+            const addProductModal = document.getElementById('addProductModal');
+            addProductModal.addEventListener('show.bs.modal', function() {
+                loadCategoryOptions();
+            });
         });
     </script>
 </body>
