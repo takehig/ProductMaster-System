@@ -123,7 +123,7 @@ def get_category_detail(category_id: int):
         conn = get_db_connection()
         cur = conn.cursor()
         
-        cur.execute("SELECT * FROM product_categories WHERE category_id = %s", (category_id,))
+        cur.execute("SELECT category_id, category_code, category_name, description, display_order, is_active FROM product_categories WHERE category_id = %s", (category_id,))
         result = cur.fetchone()
         
         cur.close()
@@ -132,7 +132,11 @@ def get_category_detail(category_id: int):
         if result:
             return {
                 "category_id": result[0],
-                "category_name": result[1],
+                "category_code": result[1],
+                "category_name": result[2],
+                "description": result[3],
+                "display_order": result[4],
+                "is_active": result[5]
                 "category_code": result[2],
                 "description": result[3],
                 "display_order": result[4],

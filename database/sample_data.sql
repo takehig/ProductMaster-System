@@ -11,17 +11,11 @@ INSERT INTO product_categories (category_code, category_name, description, displ
 ('REIT', 'REIT', '不動産投資信託', 6),
 ('COMMODITY', 'コモディティ', '金、原油等の商品', 7);
 
--- 債券サブカテゴリ
-INSERT INTO product_categories (category_code, category_name, parent_category_id, description, display_order) VALUES
-('BOND_GOV', '国債', 1, '日本国債、米国債等', 1),
-('BOND_CORP', '社債', 1, '国内外企業の社債', 2),
-('BOND_MUNI', '地方債', 1, '地方自治体発行債券', 3);
-
--- 株式サブカテゴリ
-INSERT INTO product_categories (category_code, category_name, parent_category_id, description, display_order) VALUES
-('STOCK_DOM', '国内株式', 2, '日本株式', 1),
-('STOCK_US', '米国株式', 2, '米国株式', 2),
-('STOCK_INTL', '国際株式', 2, '新興国等の株式', 3);
+-- 株式詳細カテゴリ（フラット構造）
+INSERT INTO product_categories (category_code, category_name, description, display_order) VALUES
+('STOCK_DOM', '国内株式', '日本株式', 11),
+('STOCK_US', '米国株式', '米国株式', 12),
+('STOCK_INTL', '国際株式', '新興国等の株式', 13);
 
 -- 商品マスターのサンプルデータ
 INSERT INTO products (

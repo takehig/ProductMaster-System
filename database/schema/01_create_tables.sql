@@ -6,7 +6,6 @@ CREATE TABLE product_categories (
     category_id SERIAL PRIMARY KEY,
     category_code VARCHAR(20) UNIQUE NOT NULL,
     category_name VARCHAR(100) NOT NULL,
-    parent_category_id INTEGER REFERENCES product_categories(category_id),
     description TEXT,
     display_order INTEGER DEFAULT 0,
     is_active BOOLEAN DEFAULT TRUE,
