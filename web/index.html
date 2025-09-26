@@ -429,7 +429,7 @@
             console.log('[DEBUG] loadProducts() started');
             try {
                 console.log('[DEBUG] Fetching ./api/products');
-                const response = await fetch('./api/products');
+                const response = await fetch('/products/api/products');
                 console.log('[DEBUG] Response status:', response.status, 'ok:', response.ok);
                 
                 const data = await response.json();
@@ -555,7 +555,7 @@
             }
             
             try {
-                const response = await fetch('./api/categories', {
+                const response = await fetch('/products/api/categories', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -582,7 +582,7 @@
         // カテゴリ編集
         async function editCategory(categoryId) {
             try {
-                const response = await fetch(`./api/categories/${categoryId}`);
+                const response = await fetch(`/products/api/categories/${categoryId}`);
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
                 }
@@ -624,7 +624,7 @@
             }
             
             try {
-                const response = await fetch(`./api/categories/${categoryId}`, {
+                const response = await fetch(`/products/api/categories/${categoryId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -654,7 +654,7 @@
             }
             
             try {
-                const response = await fetch(`./api/categories/${categoryId}`, {
+                const response = await fetch(`/products/api/categories/${categoryId}`, {
                     method: 'DELETE'
                 });
                 
@@ -675,7 +675,7 @@
         async function editProduct(productId) {
             try {
                 // 商品詳細取得
-                const response = await fetch(`./api/products/${productId}`);
+                const response = await fetch(`/products/api/products/${productId}`);
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
                 }
@@ -695,7 +695,7 @@
                 document.getElementById('editDescription').value = product.description || '';
                 
                 // カテゴリ設定（category_codeからcategory_idを取得）
-                const categories = await fetch('./api/categories').then(r => r.json());
+                const categories = await fetch('/products/api/categories').then(r => r.json());
                 const category = categories.find(c => c.category_code === product.category_code);
                 if (category) {
                     document.getElementById('editCategoryId').value = category.category_id;
@@ -710,7 +710,7 @@
         // 編集用カテゴリ選択肢読み込み
         async function loadEditCategoryOptions() {
             try {
-                const response = await fetch('./api/categories');
+                const response = await fetch('/products/api/categories');
                 const categories = await response.json();
                 
                 const select = document.getElementById('editCategoryId');
@@ -748,7 +748,7 @@
             }
             
             try {
-                const response = await fetch(`./api/products/${productId}`, {
+                const response = await fetch(`/products/api/products/${productId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -780,7 +780,7 @@
             }
             
             try {
-                const response = await fetch(`./api/products/${productId}`, {
+                const response = await fetch(`/products/api/products/${productId}`, {
                     method: 'DELETE'
                 });
                 
@@ -858,7 +858,7 @@
         // カテゴリ選択肢読み込み
         async function loadCategoryOptions() {
             try {
-                const response = await fetch('./api/categories');
+                const response = await fetch('/products/api/categories');
                 const categories = await response.json();
                 
                 const select = document.getElementById('categoryId');
@@ -893,7 +893,7 @@
             }
             
             try {
-                const response = await fetch('./api/products/', {
+                const response = await fetch('/products/api/products/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -925,7 +925,7 @@
             console.log('[DEBUG] loadCategories() started');
             try {
                 console.log('[DEBUG] Fetching ./api/categories');
-                const response = await fetch('./api/categories');
+                const response = await fetch('/products/api/categories');
                 console.log('[DEBUG] Response status:', response.status, 'ok:', response.ok);
                 
                 const categories = await response.json();
