@@ -428,8 +428,8 @@
         async function loadProducts() {
             console.log('[DEBUG] loadProducts() started');
             try {
-                console.log('[DEBUG] Fetching /products/api/products');
-                const response = await fetch('/products/api/products');
+                console.log('[DEBUG] Fetching ./api/products');
+                const response = await fetch('./api/products');
                 console.log('[DEBUG] Response status:', response.status, 'ok:', response.ok);
                 
                 const data = await response.json();
@@ -675,7 +675,7 @@
         async function editProduct(productId) {
             try {
                 // 商品詳細取得
-                const response = await fetch(`/products/api/products/${productId}`);
+                const response = await fetch(`./api/products/${productId}`);
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
                 }
@@ -748,7 +748,7 @@
             }
             
             try {
-                const response = await fetch(`/products/api/products/${productId}`, {
+                const response = await fetch(`./api/products/${productId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -780,7 +780,7 @@
             }
             
             try {
-                const response = await fetch(`/products/api/products/${productId}`, {
+                const response = await fetch(`./api/products/${productId}`, {
                     method: 'DELETE'
                 });
                 
@@ -893,7 +893,7 @@
             }
             
             try {
-                const response = await fetch('/products/api/products/', {
+                const response = await fetch('./api/products/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
