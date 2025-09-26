@@ -1,4 +1,41 @@
-# ProductMaster-System 設計書
+# ProductMaster-System 設計書 v2.0.0
+
+## 🎯 データベース正規化完了（2025-09-26）
+
+### ✅ product_type 完全削除・category_code 統一設計
+
+#### **正規化アーキテクチャ**
+```
+products テーブル (正規化済み)
+├── category_id (外部キー) → product_categories.category_id
+└── product_type カラム削除完了
+
+products_with_category ビュー
+├── category_code (product_categories.category_code)
+├── category_name (product_categories.category_name)
+└── 全商品情報 + カテゴリ情報統合
+```
+
+#### **API設計統一**
+```python
+# GET系API: ビュー使用（JOIN不要）
+SELECT * FROM products_with_category
+
+# 更新系API: 正規化テーブル操作
+INSERT INTO products (..., category_id, ...)
+UPDATE products SET category_id = ? WHERE ...
+```
+
+#### **レスポンス構造統一**
+```json
+{
+  "product_code": "BOND001",
+  "product_name": "国債10年",
+  "category_code": "BOND",
+  "category_name": "債券",
+  "currency": "JPY"
+}
+```
 
 ## 📋 プロジェクト概要
 **金融商品情報管理システム - 完全なCRUD機能・視覚的UI改善版**
