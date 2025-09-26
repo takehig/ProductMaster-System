@@ -147,7 +147,7 @@ def get_category_detail(category_id: int):
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 @app.put("/api/categories/{category_id}")
-def update_category(category_id: int, category_data: dict):
+async def update_category(category_id: int, category_data: dict):
     """カテゴリ更新"""
     try:
         conn = get_db_connection()
@@ -339,7 +339,7 @@ async def create_product(product_data: dict):
         return {"status": "error", "message": f"商品追加エラー: {str(e)}"}
 
 @app.put("/api/products/{product_id}")
-def update_product(product_id: int, product_data: dict):
+async def update_product(product_id: int, product_data: dict):
     """商品を更新"""
     try:
         conn = get_db_connection()
