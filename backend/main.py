@@ -137,10 +137,6 @@ def get_category_detail(category_id: int):
                 "description": result[3],
                 "display_order": result[4],
                 "is_active": result[5]
-                "category_code": result[2],
-                "description": result[3],
-                "display_order": result[4],
-                "is_active": result[5]
             }
         else:
             raise HTTPException(status_code=404, detail="カテゴリが見つかりません")
