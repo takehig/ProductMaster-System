@@ -344,7 +344,10 @@
                 </div>
                 <div class="modal-body">
                     <form id="editCategoryForm">
-                        <input type="hidden" id="editCategoryId" name="category_id">
+                        <div class="mb-3">
+                            <label for="editCategoryId" class="form-label">カテゴリID</label>
+                            <input type="text" class="form-control" id="editCategoryId" name="category_id" readonly>
+                        </div>
                         <div class="mb-3">
                             <label for="editCategoryName" class="form-label">カテゴリ名 <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="editCategoryName" name="category_name" required>
@@ -581,19 +584,13 @@
 
         // カテゴリ編集
         async function editCategory(categoryId) {
-            console.log('[DEBUG] editCategory called with categoryId:', categoryId, 'type:', typeof categoryId);
             try {
-                console.log('[DEBUG] Fetching category details for ID:', categoryId);
                 const response = await fetch(`./api/categories/${categoryId}`);
-                console.log('[DEBUG] Category detail response status:', response.status, 'ok:', response.ok);
-                
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
                 }
                 const category = await response.json();
-                console.log('[DEBUG] Category data received:', category);
                 
-                console.log('[DEBUG] Setting form values...');
                 document.getElementById('editCategoryId').value = category.category_id;
                 document.getElementById('editCategoryName').value = category.category_name;
                 document.getElementById('editCategoryCode').value = category.category_code;
@@ -601,46 +598,35 @@
                 document.getElementById('editDisplayOrder').value = category.display_order || 0;
                 document.getElementById('editIsActive').checked = category.is_active;
                 
-                console.log('[DEBUG] Form values set. Hidden field value:', document.getElementById('editCategoryId').value);
-                
             } catch (error) {
-                console.error('[DEBUG] editCategory error:', error);
+                console.error('カテゴリ詳細取得エラー:', error);
                 alert('カテゴリ情報の取得に失敗しました。');
             }
         }
 
         // カテゴリ更新
         async function updateCategory() {
-            console.log('[DEBUG] updateCategory called');
             const form = document.getElementById('editCategoryForm');
             const formData = new FormData(form);
             const categoryId = formData.get('category_id');
             
-            console.log('[DEBUG] Form data entries:');
-            for (let [key, value] of formData.entries()) {
-                console.log(`[DEBUG] ${key}: ${value} (type: ${typeof value})`);
+            if (!categoryId) {
+                alert('カテゴリIDが取得できません。');
+                return;
             }
-            console.log('[DEBUG] categoryId from FormData:', categoryId, 'type:', typeof categoryId);
-            console.log('[DEBUG] Hidden field direct value:', document.getElementById('editCategoryId').value);
             
             if (!formData.get('category_name') || !formData.get('category_code')) {
                 alert('必須項目を入力してください。');
                 return;
             }
             
-            const categoryData = {};
-            for (let [key, value] of formData.entries()) {
-                if (key !== 'category_id') {
-                    if (key === 'is_active') {
-                        categoryData[key] = document.getElementById('editIsActive').checked;
-                    } else {
-                        categoryData[key] = value;
-                    }
-                }
-            }
-            
-            console.log('[DEBUG] categoryData to send:', categoryData);
-            console.log('[DEBUG] Final URL will be: ./api/categories/' + categoryId);
+            const categoryData = {
+                category_name: formData.get('category_name'),
+                category_code: formData.get('category_code'),
+                description: formData.get('description') || '',
+                display_order: parseInt(formData.get('display_order')) || 0,
+                is_active: document.getElementById('editIsActive').checked
+            };
             
             try {
                 const response = await fetch(`./api/categories/${categoryId}`, {
@@ -650,8 +636,6 @@
                     },
                     body: JSON.stringify(categoryData)
                 });
-                
-                console.log('[DEBUG] Update response status:', response.status, 'ok:', response.ok);
                 
                 if (response.ok) {
                     alert('カテゴリを更新しました。');
@@ -1001,6 +985,9 @@
                 document.getElementById('categoriesContainer').innerHTML = '<p class="text-danger">カテゴリの読み込みに失敗しました。</p>';
             }
         }
+
+        // グローバル変数
+        let currentEditingCategoryId = null;
 
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
