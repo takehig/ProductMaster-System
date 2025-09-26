@@ -261,7 +261,14 @@
                 
                 console.log('[DEBUG] Building products table');
                 let html = '<div class="table-responsive"><table class="table table-striped">';
-                html += '<thead><tr><th>商品コード</th><th>商品名</th><th>種別</th><th>通貨</th><th>発行者</th><th>リスクレベル</th></tr></thead><tbody>';
+                html += '<thead><tr>' +
+                    '<th onclick="sortTable(0)" style="cursor: pointer;">商品コード <span id="sort0"></span></th>' +
+                    '<th onclick="sortTable(1)" style="cursor: pointer;">商品名 <span id="sort1"></span></th>' +
+                    '<th onclick="sortTable(2)" style="cursor: pointer;">種別 <span id="sort2"></span></th>' +
+                    '<th onclick="sortTable(3)" style="cursor: pointer;">通貨 <span id="sort3"></span></th>' +
+                    '<th onclick="sortTable(4)" style="cursor: pointer;">発行者 <span id="sort4"></span></th>' +
+                    '<th onclick="sortTable(5)" style="cursor: pointer;">リスクレベル <span id="sort5"></span></th>' +
+                    '</tr></thead><tbody>';
                 
                 products.forEach(product => {
                     html += `<tr>
@@ -282,6 +289,63 @@
             } catch (error) {
                 console.error('[DEBUG] loadProducts() error:', error);
                 document.getElementById('productsContainer').innerHTML = '<p class="text-danger">商品の読み込みに失敗しました。</p>';
+            }
+        }
+
+        // テーブルソート機能
+        let sortDirection = {};
+        
+        function sortTable(columnIndex) {
+            const table = document.querySelector('#productsContainer table');
+            if (!table) return;
+            
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // ソート方向決定
+            const currentDirection = sortDirection[columnIndex] || 'asc';
+            const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+            sortDirection[columnIndex] = newDirection;
+            
+            // ソート実行
+            rows.sort((a, b) => {
+                const aText = a.cells[columnIndex].textContent.trim();
+                const bText = b.cells[columnIndex].textContent.trim();
+                
+                // 数値判定（リスクレベル用）
+                const aNum = parseFloat(aText);
+                const bNum = parseFloat(bText);
+                
+                let comparison = 0;
+                if (!isNaN(aNum) && !isNaN(bNum)) {
+                    comparison = aNum - bNum;
+                } else {
+                    comparison = aText.localeCompare(bText, 'ja');
+                }
+                
+                return newDirection === 'asc' ? comparison : -comparison;
+            });
+            
+            // テーブル更新
+            rows.forEach(row => tbody.appendChild(row));
+            
+            // ソート方向表示更新
+            updateSortIndicators(columnIndex, newDirection);
+        }
+        
+        function updateSortIndicators(activeColumn, direction) {
+            // 全インジケーターリセット
+            for (let i = 0; i < 6; i++) {
+                const indicator = document.getElementById(`sort${i}`);
+                if (indicator) {
+                    indicator.textContent = '';
+                }
+            }
+            
+            // アクティブ列のインジケーター設定
+            const activeIndicator = document.getElementById(`sort${activeColumn}`);
+            if (activeIndicator) {
+                activeIndicator.textContent = direction === 'asc' ? '↑' : '↓';
             }
         }
 
