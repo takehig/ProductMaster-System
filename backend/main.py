@@ -360,6 +360,7 @@ def update_product(product_id: int, product_data: dict):
                 category_id = %s,
                 currency = %s,
                 issuer = %s,
+                minimum_investment = %s,
                 risk_level = %s,
                 description = %s,
                 updated_at = CURRENT_TIMESTAMP
@@ -372,6 +373,7 @@ def update_product(product_id: int, product_data: dict):
             product_data.get("category_id", 1),  # デフォルト: 債券
             product_data.get("currency", "JPY"),
             product_data.get("issuer"),
+            float(product_data.get("minimum_investment", 0)) if product_data.get("minimum_investment") else 0,
             product_data.get("risk_level", 1),
             product_data.get("description"),
             product_id
