@@ -149,6 +149,10 @@ def get_category_detail(category_id: int):
 @app.put("/api/categories/{category_id}")
 async def update_category(category_id: int, category_data: dict):
     """カテゴリ更新"""
+    print(f"[DEBUG] update_category called: category_id={category_id}")
+    print(f"[DEBUG] category_data type: {type(category_data)}")
+    print(f"[DEBUG] category_data content: {category_data}")
+    
     try:
         conn = get_db_connection()
         cur = conn.cursor()
@@ -573,3 +577,10 @@ def get_version():
             "service": "ProductMaster System",
             "error": str(e)
         }
+
+# アプリケーション起動時のルート一覧ログ
+print("[DEBUG] ProductMaster API Routes:")
+for route in app.routes:
+    if hasattr(route, 'methods') and hasattr(route, 'path'):
+        print(f"[DEBUG] {list(route.methods)} {route.path}")
+print("[DEBUG] ProductMaster API initialization complete")
