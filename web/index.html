@@ -345,8 +345,8 @@
                 <div class="modal-body">
                     <form id="editCategoryForm">
                         <div class="mb-3">
-                            <label for="editCategoryId" class="form-label">カテゴリID</label>
-                            <input type="text" class="form-control" id="editCategoryId" name="category_id" readonly>
+                            <label for="editCatId" class="form-label">カテゴリID</label>
+                            <input type="text" class="form-control" id="editCatId" name="category_id" readonly>
                         </div>
                         <div class="mb-3">
                             <label for="editCategoryName" class="form-label">カテゴリ名 <span class="text-danger">*</span></label>
@@ -591,7 +591,7 @@
                 }
                 const category = await response.json();
                 
-                document.getElementById('editCategoryId').value = category.category_id;
+                document.getElementById('editCatId').value = category.category_id;
                 document.getElementById('editCategoryName').value = category.category_name;
                 document.getElementById('editCategoryCode').value = category.category_code;
                 document.getElementById('editCategoryDescription').value = category.description || '';
