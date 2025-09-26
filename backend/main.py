@@ -122,7 +122,7 @@ def get_products():
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("""
-            SELECT product_id, product_code, product_name, product_type, 
+            SELECT product_id, product_code, product_name, category_code, 
                    currency, issuer, minimum_investment, risk_level, description
             FROM products_with_category 
             WHERE is_active = true
@@ -136,7 +136,7 @@ def get_products():
                 "id": row[0],
                 "product_code": row[1],
                 "product_name": row[2],
-                "product_type": row[3],
+                "category_code": row[3],
                 "currency": row[4],
                 "issuer": row[5],
                 "minimum_investment": float(row[6]) if row[6] else 0,
@@ -244,7 +244,7 @@ def update_product(product_id: int, product_data: dict):
         
         # 更新後のデータを取得
         cur.execute("""
-            SELECT product_id, product_code, product_name, product_type, 
+            SELECT product_id, product_code, product_name, category_code, 
                    currency, issuer, minimum_investment, risk_level, description
             FROM products_with_category WHERE product_id = %s
         """, (product_id,))
@@ -279,7 +279,7 @@ def download_products():
     try:
         conn = get_db_connection()
         df = pd.read_sql_query("""
-            SELECT product_code, product_name, product_type, currency, issuer, 
+            SELECT product_code, product_name, category_code, currency, issuer, 
                    minimum_investment, risk_level, description
             FROM products_with_category 
             WHERE is_active = true
