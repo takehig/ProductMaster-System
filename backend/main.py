@@ -152,6 +152,44 @@ def get_products():
     except Exception as e:
         return {"products": [], "total": 0, "status": "error", "message": str(e)}
 
+@app.get("/api/products/{product_id}")
+def get_product_detail(product_id: int):
+    """商品詳細取得"""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT product_id, product_code, product_name, category_code, category_name,
+                   currency, issuer, minimum_investment, risk_level, description
+            FROM products_with_category WHERE product_id = %s
+        """, (product_id,))
+        result = cur.fetchone()
+        
+        cur.close()
+        conn.close()
+        
+        if result:
+            return {
+                "id": result[0],
+                "product_code": result[1],
+                "product_name": result[2],
+                "category_code": result[3],
+                "category_name": result[4],
+                "currency": result[5],
+                "issuer": result[6],
+                "minimum_investment": float(result[7]) if result[7] else 0,
+                "risk_level": result[8],
+                "description": result[9] or ""
+            }
+        else:
+            raise HTTPException(status_code=404, detail="商品が見つかりません")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
 @app.post("/api/products/")
 async def create_product(product_data: dict):
     """新規商品を追加"""

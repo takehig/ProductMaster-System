@@ -393,7 +393,13 @@
             try {
                 // 商品詳細取得
                 const response = await fetch(`./api/products/${productId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
                 const product = await response.json();
+                
+                // カテゴリ選択肢読み込み
+                await loadEditCategoryOptions();
                 
                 // フォームに値設定
                 document.getElementById('editProductId').value = product.id;
@@ -405,11 +411,7 @@
                 document.getElementById('editMinimumInvestment').value = product.minimum_investment || '';
                 document.getElementById('editDescription').value = product.description || '';
                 
-                // カテゴリ選択肢読み込み
-                await loadEditCategoryOptions();
-                
-                // カテゴリ設定（category_idが必要）
-                // APIレスポンスにcategory_idが含まれていない場合の対処
+                // カテゴリ設定（category_codeからcategory_idを取得）
                 const categories = await fetch('./api/categories').then(r => r.json());
                 const category = categories.find(c => c.category_code === product.category_code);
                 if (category) {
