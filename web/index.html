@@ -204,10 +204,13 @@
     <script>
         // セクション切り替え
         function showSection(sectionName) {
+            console.log('[DEBUG] showSection called with:', sectionName);
+            
             // 全セクションを非表示
             document.querySelectorAll('.content-section').forEach(section => {
                 section.style.display = 'none';
             });
+            console.log('[DEBUG] All sections hidden');
             
             // 全ナビリンクのactiveクラスを削除
             document.querySelectorAll('.nav-link').forEach(link => {
@@ -215,7 +218,14 @@
             });
             
             // 指定セクションを表示
-            document.getElementById(sectionName + '-section').style.display = 'block';
+            const targetSection = document.getElementById(sectionName + '-section');
+            console.log('[DEBUG] Target section element:', targetSection);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                console.log('[DEBUG] Target section displayed:', sectionName + '-section');
+            } else {
+                console.error('[DEBUG] Target section not found:', sectionName + '-section');
+            }
             
             // 対応するナビリンクにactiveクラスを追加
             if (event && event.target) {
@@ -223,25 +233,38 @@
             }
             
             // セクション別の初期化処理
+            console.log('[DEBUG] Checking section initialization for:', sectionName);
             if (sectionName === 'products') {
+                console.log('[DEBUG] Calling loadProducts()');
                 loadProducts();
             } else if (sectionName === 'categories') {
+                console.log('[DEBUG] Calling loadCategories()');
                 loadCategories();
             }
         }
 
         // カテゴリ一覧読み込み
         async function loadCategories() {
+            console.log('[DEBUG] loadCategories() started');
             try {
+                console.log('[DEBUG] Fetching ./api/categories');
                 const response = await fetch('./api/categories');
+                console.log('[DEBUG] Response status:', response.status, 'ok:', response.ok);
+                
                 const categories = await response.json();
+                console.log('[DEBUG] Categories data length:', categories.length);
+                console.log('[DEBUG] Categories data:', categories);
                 
                 const container = document.getElementById('categoriesContainer');
+                console.log('[DEBUG] Container element:', container);
+                
                 if (categories.length === 0) {
+                    console.log('[DEBUG] No categories, showing empty message');
                     container.innerHTML = '<p class="text-muted">カテゴリが登録されていません。</p>';
                     return;
                 }
                 
+                console.log('[DEBUG] Building HTML table');
                 let html = '<div class="table-responsive"><table class="table table-striped">';
                 html += '<thead><tr><th>ID</th><th>カテゴリ名</th><th>コード</th><th>説明</th><th>表示順序</th><th>状態</th><th>操作</th></tr></thead><tbody>';
                 
@@ -262,9 +285,12 @@
                 });
                 
                 html += '</tbody></table></div>';
+                console.log('[DEBUG] HTML built, length:', html.length);
+                console.log('[DEBUG] Setting container innerHTML');
                 container.innerHTML = html;
+                console.log('[DEBUG] loadCategories() completed successfully');
             } catch (error) {
-                console.error('カテゴリ読み込みエラー:', error);
+                console.error('[DEBUG] loadCategories() error:', error);
                 document.getElementById('categoriesContainer').innerHTML = '<p class="text-danger">カテゴリの読み込みに失敗しました。</p>';
             }
         }
