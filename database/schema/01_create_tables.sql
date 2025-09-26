@@ -20,7 +20,6 @@ CREATE TABLE products (
     product_code VARCHAR(50) UNIQUE NOT NULL,
     product_name VARCHAR(200) NOT NULL,
     product_name_en VARCHAR(200),
-    product_type VARCHAR(50) NOT NULL, -- bond, stock, fund, structured_product, insurance
     category_id INTEGER REFERENCES product_categories(category_id),
     currency VARCHAR(10) DEFAULT 'JPY',
     issuer VARCHAR(100),
@@ -126,7 +125,6 @@ CREATE TABLE product_tag_relations (
 );
 
 -- インデックスの作成
-CREATE INDEX idx_products_type ON products(product_type);
 CREATE INDEX idx_products_category ON products(category_id);
 CREATE INDEX idx_products_issuer ON products(issuer);
 CREATE INDEX idx_products_maturity ON products(maturity_date) WHERE maturity_date IS NOT NULL;
