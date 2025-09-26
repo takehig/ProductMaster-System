@@ -233,7 +233,7 @@
         // カテゴリ一覧読み込み
         async function loadCategories() {
             try {
-                const response = await fetch('/api/categories');
+                const response = await fetch('./api/categories');
                 const categories = await response.json();
                 
                 const container = document.getElementById('categoriesContainer');
@@ -307,7 +307,7 @@
         // 商品読み込み（テーブル表示のみ）
         async function loadProducts() {
             try {
-                const response = await fetch('/api/products');
+                const response = await fetch('./api/products');
                 const data = await response.json();
                 
                 const products = data.products || data;
