@@ -174,7 +174,7 @@
                     html += `<tr>
                         <td><code>${product.product_code}</code></td>
                         <td>${product.product_name}</td>
-                        <td><span class="badge bg-primary">${product.category_code}</span></td>
+                        <td><span class="badge bg-primary">${product.category_name || product.category_code}</span></td>
                         <td>${product.currency || 'JPY'}</td>
                         <td>${product.issuer || '-'}</td>
                         <td><span class="badge bg-secondary">リスク${product.risk_level || 1}</span></td>
