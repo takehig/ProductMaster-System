@@ -28,6 +28,13 @@
         .main-content {
             padding: 2rem;
         }
+        
+        /* リスクレベル専用色分け */
+        .risk-level-1 { background-color: #28a745 !important; color: white; } /* 緑 */
+        .risk-level-2 { background-color: #17a2b8 !important; color: white; } /* 水色 */
+        .risk-level-3 { background-color: #ffc107 !important; color: black; } /* 黄色 */
+        .risk-level-4 { background-color: #fd7e14 !important; color: white; } /* オレンジ */
+        .risk-level-5 { background-color: #dc3545 !important; color: white; } /* 赤 */
         .content-section {
             display: none;
         }
@@ -466,7 +473,7 @@
                         <td><span class="badge bg-primary">${product.category_name || product.category_code}</span></td>
                         <td>${product.currency || 'JPY'}</td>
                         <td>${product.issuer || '-'}</td>
-                        <td><span class="badge bg-secondary">リスク${product.risk_level || 1}</span></td>
+                        <td><span class="badge ${getRiskLevelColor(product.risk_level)}">リスク${product.risk_level || 1}</span></td>
                         <td>
                             <button class="btn btn-sm btn-outline-primary me-1" onclick="editProduct(${product.id})" data-bs-toggle="modal" data-bs-target="#editProductModal">
                                 <i class="fas fa-edit"></i>
@@ -988,6 +995,12 @@
 
         // グローバル変数
         let currentEditingCategoryId = null;
+
+        // リスクレベル色分け関数
+        function getRiskLevelColor(riskLevel) {
+            const level = parseInt(riskLevel) || 1;
+            return `risk-level-${level}`;
+        }
 
         // 初期化
         document.addEventListener('DOMContentLoaded', function() {
