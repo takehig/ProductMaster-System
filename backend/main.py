@@ -122,7 +122,7 @@ def get_products():
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("""
-            SELECT product_id, product_code, product_name, category_code, 
+            SELECT product_id, product_code, product_name, category_code, category_name,
                    currency, issuer, minimum_investment, risk_level, description
             FROM products_with_category 
             WHERE is_active = true
@@ -137,11 +137,12 @@ def get_products():
                 "product_code": row[1],
                 "product_name": row[2],
                 "category_code": row[3],
-                "currency": row[4],
-                "issuer": row[5],
-                "minimum_investment": float(row[6]) if row[6] else 0,
-                "risk_level": row[7],
-                "description": row[8] or ""
+                "category_name": row[4],
+                "currency": row[5],
+                "issuer": row[6],
+                "minimum_investment": float(row[7]) if row[7] else 0,
+                "risk_level": row[8],
+                "description": row[9] or ""
             })
         
         cur.close()
@@ -244,7 +245,7 @@ def update_product(product_id: int, product_data: dict):
         
         # 更新後のデータを取得
         cur.execute("""
-            SELECT product_id, product_code, product_name, category_code, 
+            SELECT product_id, product_code, product_name, category_code, category_name,
                    currency, issuer, minimum_investment, risk_level, description
             FROM products_with_category WHERE product_id = %s
         """, (product_id,))
@@ -259,11 +260,12 @@ def update_product(product_id: int, product_data: dict):
                 "product_code": result[1],
                 "product_name": result[2],
                 "category_code": result[3],
-                "currency": result[4],
-                "issuer": result[5],
-                "minimum_investment": float(result[6]) if result[6] else 0,
-                "risk_level": result[7],
-                "description": result[8] or "",
+                "category_name": result[4],
+                "currency": result[5],
+                "issuer": result[6],
+                "minimum_investment": float(result[7]) if result[7] else 0,
+                "risk_level": result[8],
+                "description": result[9] or "",
                 "message": "Product updated successfully"
             }
         else:
@@ -279,7 +281,7 @@ def download_products():
     try:
         conn = get_db_connection()
         df = pd.read_sql_query("""
-            SELECT product_code, product_name, category_code, currency, issuer, 
+            SELECT product_code, product_name, category_code, category_name, currency, issuer, 
                    minimum_investment, risk_level, description
             FROM products_with_category 
             WHERE is_active = true
