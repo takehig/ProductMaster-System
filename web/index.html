@@ -129,82 +129,9 @@
 
                 <!-- カテゴリ管理セクション -->
                 <div id="categories-section" class="content-section" style="display: none;">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                        <h1 class="h2"><i class="fas fa-tags me-2"></i>カテゴリ管理</h1>
-                    </div>
-                    
-                    <!-- カテゴリ登録フォーム -->
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-plus me-2"></i>カテゴリ登録</h5>
-                        </div>
-                        <div class="card-body">
-                            <form id="categoryForm">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="categoryName" class="form-label">カテゴリ名 <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="categoryName" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="categoryCode" class="form-label">カテゴリコード <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="categoryCode" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="categoryDescription" class="form-label">説明</label>
-                                    <textarea class="form-control" id="categoryDescription" rows="2"></textarea>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="displayOrder" class="form-label">表示順序</label>
-                                            <input type="number" class="form-control" id="displayOrder" value="0">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <div class="form-check mt-4">
-                                                <input class="form-check-input" type="checkbox" id="isActive" checked>
-                                                <label class="form-check-label" for="isActive">有効</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-1"></i>登録
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    
-                    <!-- カテゴリ一覧 -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0"><i class="fas fa-list me-2"></i>カテゴリ一覧</h5>
-                        </div>
-                        <div class="card-body">
-                            <!-- テスト表示（categoriesContainer外） -->
-                            <div class="alert alert-success" role="alert">
-                                <h4 class="alert-heading">🎯 カテゴリ管理セクション表示テスト</h4>
-                                <p>この文字列が表示されていれば、カテゴリ管理セクションは正常に表示されています。</p>
-                                <hr>
-                                <p class="mb-0">セクション切り替え機能: ✅ 正常動作</p>
-                            </div>
-                            
-                            <div id="categoriesContainer">
-                                <div class="text-center">
-                                    <div class="spinner-border" role="status">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                    <p class="mt-2">カテゴリデータを読み込み中...</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <h1>🎯 カテゴリ管理セクション表示テスト成功！</h1>
+                    <p>この文字列が見えていれば、カテゴリ管理セクションは正常に動作しています。</p>
+                    <p>セクション切り替え機能: ✅ 正常動作</p>
                 </div>
             </main>
 
@@ -247,7 +174,7 @@
                 loadProducts();
             } else if (sectionName === 'categories') {
                 console.log('[DEBUG] Calling loadCategories()');
-                loadCategories();
+                // loadCategories(); // 一時的に無効化
             }
         }
 
