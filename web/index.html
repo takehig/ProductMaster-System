@@ -316,10 +316,19 @@
                 return;
             }
             
+            // FormDataをJSONに変換
+            const productData = {};
+            for (let [key, value] of formData.entries()) {
+                productData[key] = value;
+            }
+            
             try {
                 const response = await fetch('./api/products/', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(productData)
                 });
                 
                 if (response.ok) {
