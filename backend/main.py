@@ -339,6 +339,34 @@ def download_products():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.delete("/api/products/{product_id}")
+def delete_product(product_id: int):
+    """商品削除"""
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        
+        # 商品の存在確認
+        cur.execute("SELECT product_id FROM products_with_category WHERE product_id = %s", (product_id,))
+        if not cur.fetchone():
+            cur.close()
+            conn.close()
+            raise HTTPException(status_code=404, detail="商品が見つかりません")
+        
+        # 商品削除（論理削除）
+        cur.execute("UPDATE products SET is_active = false WHERE product_id = %s", (product_id,))
+        conn.commit()
+        
+        cur.close()
+        conn.close()
+        
+        return {"message": "商品を削除しました", "product_id": product_id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
 @app.post("/api/products/upload")
 async def upload_products(file: UploadFile = File(...)):
     try:
