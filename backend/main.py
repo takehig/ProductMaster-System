@@ -204,8 +204,8 @@ def delete_category(category_id: int):
             conn.close()
             raise HTTPException(status_code=404, detail="カテゴリが見つかりません")
         
-        # カテゴリ削除（論理削除）
-        cur.execute("UPDATE product_categories SET is_active = false WHERE category_id = %s", (category_id,))
+        # カテゴリ削除（物理削除）
+        cur.execute("DELETE FROM product_categories WHERE category_id = %s", (category_id,))
         conn.commit()
         
         cur.close()
