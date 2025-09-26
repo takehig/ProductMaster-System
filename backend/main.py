@@ -165,7 +165,7 @@ async def create_product(product_data: dict):
             raise HTTPException(status_code=400, detail="商品名は必須です")
         
         # 重複チェック
-        cur.execute("SELECT product_id FROM products WHERE product_code = %s", (product_data['product_code'],))
+        cur.execute("SELECT product_id FROM products_with_category WHERE product_code = %s", (product_data['product_code'],))
         if cur.fetchone():
             raise HTTPException(status_code=400, detail="この商品コードは既に存在します")
         
@@ -209,7 +209,7 @@ def update_product(product_id: int, product_data: dict):
         cur = conn.cursor()
         
         # 商品の存在確認
-        cur.execute("SELECT product_id FROM products WHERE product_id = %s", (product_id,))
+        cur.execute("SELECT product_id FROM products_with_category WHERE product_id = %s", (product_id,))
         if not cur.fetchone():
             cur.close()
             conn.close()
